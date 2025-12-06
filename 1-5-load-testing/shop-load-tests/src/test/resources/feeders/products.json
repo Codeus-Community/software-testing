@@ -1,0 +1,5 @@
+[
+  { "productId": 1, "name": "Laptop", "price": 1299.99, "quantity": 1 },
+  { "productId": 2, "name": "Headphones", "price": 199.0, "quantity": 2 },
+  { "productId": 3, "name": "Mechanical Keyboard", "price": 149.5, "quantity": 1 }
+]

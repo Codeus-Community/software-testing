@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    # Force a timezone name accepted by Postgres (Europe/Kiev was rejected)
+    url: jdbc:postgresql://localhost:5432/shopdb?options=-c%20TimeZone=Europe/Kyiv
+    username: shop
+    password: shop
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.show_sql: false
+      hibernate.format_sql: true
+
+server:
+  port: 8080
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: shop-service
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+      sla:
+        http:
+          server:
+            requests: 100ms,200ms,500ms,1s,2s
