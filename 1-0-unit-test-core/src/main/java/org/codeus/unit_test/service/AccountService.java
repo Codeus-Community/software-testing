@@ -6,9 +6,9 @@ import org.codeus.unit_test.enums.Currency;
 import org.codeus.unit_test.exception.FraudDetectedException;
 import org.codeus.unit_test.model.Account;
 import org.codeus.unit_test.repository.AccountRepository;
-import org.codeus.unit_test.util.TimeProvider;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class AccountService {
@@ -17,20 +17,18 @@ public class AccountService {
     private final TransactionValidator transactionValidator;
     private final NotificationService notificationService;
     private final FraudDetectionService fraudDetectionService;
-    private final TimeProvider timeProvider;
+
 
     private static final BigDecimal LOW_BALANCE_THRESHOLD = new BigDecimal("100");
 
     public AccountService(AccountRepository accountRepository,
                           TransactionValidator transactionValidator,
                           NotificationService notificationService,
-                          FraudDetectionService fraudDetectionService,
-                          TimeProvider timeProvider) {
+                          FraudDetectionService fraudDetectionService) {
         this.accountRepository = accountRepository;
         this.transactionValidator = transactionValidator;
         this.notificationService = notificationService;
         this.fraudDetectionService = fraudDetectionService;
-        this.timeProvider = timeProvider;
     }
 
     public Account createAccount(String clientId, AccountType type, Currency currency, BigDecimal initialDeposit) {
@@ -49,7 +47,7 @@ public class AccountService {
                 .currency(currency)
                 .balance(initialDeposit != null ? initialDeposit : BigDecimal.ZERO)
                 .status(AccountStatus.ACTIVE)
-                .createdAt(timeProvider.now())
+                .createdAt(LocalDateTime.now())
                 .dailyWithdrawalLimit(getDefaultDailyLimit(type))
                 .build();
 
