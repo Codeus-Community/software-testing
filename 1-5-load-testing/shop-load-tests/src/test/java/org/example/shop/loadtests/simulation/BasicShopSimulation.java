@@ -35,13 +35,24 @@ public class BasicShopSimulation extends Simulation {
 
         HttpProtocolBuilder httpProtocol = HttpProtocolFactory.create(baseUrl);
 
-        ScenarioBuilder scn = BasicShopScenario.build();
+        var productFeeder = BasicShopScenario.productFeeder();
+        ScenarioBuilder browseCatalog = BasicShopScenario.browseCatalog(productFeeder);
+        ScenarioBuilder checkoutFlow = BasicShopScenario.checkoutFlow(productFeeder);
 
         setUp(
-            scn.injectOpen(
-                atOnceUsers(1),
-                rampUsers(5).during(Duration.ofSeconds(10))
+            browseCatalog.injectOpen(
+                rampUsersPerSec(1).to(6).during(Duration.ofSeconds(40)),
+                constantUsersPerSec(6).during(Duration.ofSeconds(60)),
+                constantUsersPerSec(14).during(Duration.ofSeconds(10))
+            ),
+            checkoutFlow.injectOpen(
+                rampUsersPerSec(1).to(2).during(Duration.ofSeconds(40)),
+                constantUsersPerSec(2).during(Duration.ofSeconds(60)),
+                constantUsersPerSec(5).during(Duration.ofSeconds(10))
             )
-        ).protocols(httpProtocol);
+        ).protocols(httpProtocol).assertions(
+            global().responseTime().percentile(95).lt(900),
+            global().failedRequests().percent().lte(0.5)
+        );
     }
 }
