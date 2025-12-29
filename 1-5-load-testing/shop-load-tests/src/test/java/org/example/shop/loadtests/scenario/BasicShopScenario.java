@@ -16,7 +16,8 @@ public class BasicShopScenario {
      * TODO roadmap for the workshop:
      *  - TODO-1: add realistic "think time" between user actions (pause 1–3 seconds; avoid back-to-back requests).
      *  - TODO-2: extend the flow with product details (GET /api/products/{id}) and validate response structure.
-     *  - TODO-3: remove hardcoded values by introducing external test data (feeder) and using it consistently in the flow.
+     *  - TODO-3: use external test data (feeder) for productId/quantity/name/price (see src/test/resources/feeders/products.json)
+     *      and use it consistently in URLs, bodies and checks.
      *  - TODO-4: split into at least two user journeys:
      *      - browse (catalog + details),
      *      - checkout (includes order creation + reading the created order, with proper correlation).

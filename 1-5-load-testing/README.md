@@ -32,6 +32,14 @@ In the starter branch (`1-5-load-testing`) the load test is intentionally minima
 
 The Gatling classes contain numbered TODO comments (`TODO-1` .. `TODO-7`) that guide how to evolve the scenario.
 
+Useful Gatling docs (quick lookup):
+- Feeders: https://docs.gatling.io/concepts/session/feeders/
+- Expression Language (EL): https://docs.gatling.io/reference/script/core/session/el/
+- HTTP requests: https://docs.gatling.io/reference/script/http/
+- HTTP checks: https://docs.gatling.io/reference/script/http/checks/
+- Injection profiles (load model): https://docs.gatling.io/reference/script/core/injection/
+- Assertions (SLA): https://docs.gatling.io/concepts/assertions/
+
 ## 2. What you need to implement
 
 **Class: `BasicShopScenario`**
@@ -44,7 +52,7 @@ The Gatling classes contain numbered TODO comments (`TODO-1` .. `TODO-7`) that g
 - add think time (pauses) between steps: **1–3 seconds**.
 
 2) **Use dynamic data**
-- replace hardcoded IDs with a feeder (JSON/CSV) that provides `productId` / `name` / `price` / `quantity` (a starter JSON feeder is already included);
+- use a feeder (JSON/CSV) that provides `productId` / `name` / `price` / `quantity` (a starter JSON feeder is already included);
 - use feeder data in URLs, request bodies and response validations (checks).
 
 3) **Split user flows**
