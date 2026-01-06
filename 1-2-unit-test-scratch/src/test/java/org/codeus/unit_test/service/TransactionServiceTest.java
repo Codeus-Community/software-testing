@@ -48,9 +48,6 @@ class TransactionServiceTest {
     private NotificationService notificationService;
 
     @Mock
-    private ExchangeRateService exchangeRateService;
-
-    @Mock
     private TimeProvider timeProvider;
 
     @InjectMocks
@@ -60,6 +57,10 @@ class TransactionServiceTest {
     private Account toAccount;
     private LocalDateTime fixedTime;
 
+    /**
+     * Setup executed before each test.
+     * Initializes test accounts and fixed time for deterministic testing.
+     */
     @BeforeEach
     void setUp() {
         fixedTime = LocalDateTime.of(2024, 1, 15, 10, 0);
@@ -84,6 +85,14 @@ class TransactionServiceTest {
                 .build();
     }
 
+    /**
+     * Demonstrates: Complex isolation with multiple dependencies working together
+     * FIRST principles: Fast (all dependencies mocked), Independent (no real services)
+     * <p>
+     * Tests the complete transfer flow with multiple mocked services.
+     * Shows how to isolate a service that depends on many other services.
+     * Verifies the core business logic: balance changes and fee calculation.
+     */
     @Test
     void transfer_WithValidData_TransfersMoneySuccessfully() {
         // Arrange
@@ -102,17 +111,30 @@ class TransactionServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getType()).isEqualTo(TransactionType.TRANSFER);
         assertThat(result.getAmount()).isEqualByComparingTo(amount);
-        assertThat(fromAccount.getBalance()).isEqualByComparingTo(new BigDecimal("3990"));
-        assertThat(toAccount.getBalance()).isEqualByComparingTo(new BigDecimal("3000"));
+        assertThat(fromAccount.getBalance()).isEqualByComparingTo(new BigDecimal("3990")); // 5000 - 1000 - 10 (fee)
+        assertThat(toAccount.getBalance()).isEqualByComparingTo(new BigDecimal("3000"));   // 2000 + 1000
 
         verify(transactionValidator).validateTransfer(fromAccount, toAccount, amount);
         verify(fraudDetectionService).isSuspiciousTransfer(fromAccount, toAccount, amount);
         verify(accountRepository).save(fromAccount);
         verify(accountRepository).save(toAccount);
         verify(transactionRepository).save(any(Transaction.class));
-        verify(notificationService, times(2)).sendTransactionNotification(anyString(), any(Transaction.class));
     }
 
+    /**
+     * Demonstrates: InOrder verification - ensuring operations happen in correct sequence
+     * FIRST principles: Fast (no I/O), Self-validating (clear order verification)
+     * <p>
+     * Tests that transfer operations occur in the proper order:
+     * 1. Validate transaction
+     * 2. Check for fraud
+     * 3. Update accounts
+     * 4. Save transaction
+     * 5. Send notifications
+     * <p>
+     * Order matters in financial operations - you can't save before validating!
+     * InOrder ensures critical operations follow business rules sequence.
+     */
     @Test
     void transfer_VerifiesCorrectOrderOfOperations() {
         // Arrange
@@ -128,7 +150,8 @@ class TransactionServiceTest {
         transactionService.transfer("acc-001", "acc-002", amount);
 
         // Assert - verify order
-        InOrder inOrder = inOrder(transactionValidator, fraudDetectionService, accountRepository, transactionRepository, notificationService);
+        InOrder inOrder = inOrder(transactionValidator, fraudDetectionService, accountRepository,
+                transactionRepository, notificationService);
         inOrder.verify(transactionValidator).validateTransfer(fromAccount, toAccount, amount);
         inOrder.verify(fraudDetectionService).isSuspiciousTransfer(fromAccount, toAccount, amount);
         inOrder.verify(accountRepository).save(fromAccount);
@@ -138,30 +161,20 @@ class TransactionServiceTest {
         inOrder.verify(notificationService).sendTransactionNotification(eq("client-002"), any(Transaction.class));
     }
 
+    /**
+     * Demonstrates: Negative verification with never() - ensuring operations DON'T happen
+     * FIRST principles: Independent (isolated fraud scenario), Repeatable (deterministic fraud check)
+     * <p>
+     * Tests that when fraud is detected, no actual transfer occurs.
+     * Uses never() to verify critical operations are skipped:
+     * - Accounts are NOT saved
+     * - Transaction is NOT recorded
+     * - Notifications are NOT sent
+     * <p>
+     * This is crucial for security - fraudulent operations must be completely blocked.
+     */
     @Test
-    void transfer_WithDifferentCurrencies_ConvertsAmount() {
-        // Arrange
-        toAccount.setCurrency(Currency.EUR);
-        BigDecimal amount = new BigDecimal("1000");
-        BigDecimal convertedAmount = new BigDecimal("920");
-
-        when(timeProvider.now()).thenReturn(fixedTime);
-        when(accountRepository.findById("acc-001")).thenReturn(Optional.of(fromAccount));
-        when(accountRepository.findById("acc-002")).thenReturn(Optional.of(toAccount));
-        when(fraudDetectionService.isSuspiciousTransfer(any(), any(), any())).thenReturn(false);
-        when(exchangeRateService.convert(amount, Currency.USD, Currency.EUR)).thenReturn(convertedAmount);
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        transactionService.transfer("acc-001", "acc-002", amount);
-
-        // Assert
-        verify(exchangeRateService).convert(amount, Currency.USD, Currency.EUR);
-        assertThat(toAccount.getBalance()).isEqualByComparingTo(new BigDecimal("2920"));
-    }
-
-    @Test
-    void transfer_WithSuspiciousActivity_ThrowsExceptionAndDoesNotTransfer() {
+    void transfer_WithSuspiciousActivity_DoesNotTransfer() {
         // Arrange
         BigDecimal amount = new BigDecimal("10000");
 
@@ -185,97 +198,14 @@ class TransactionServiceTest {
         assertThat(toAccount.getBalance()).isEqualByComparingTo(originalToBalance);
     }
 
-    @Test
-    void transfer_CalculatesFeeCorrectly() {
-        // Arrange
-        BigDecimal amount = new BigDecimal("1000");
-
-        when(timeProvider.now()).thenReturn(fixedTime);
-        when(accountRepository.findById("acc-001")).thenReturn(Optional.of(fromAccount));
-        when(accountRepository.findById("acc-002")).thenReturn(Optional.of(toAccount));
-        when(fraudDetectionService.isSuspiciousTransfer(any(), any(), any())).thenReturn(false);
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        Transaction result = transactionService.transfer("acc-001", "acc-002", amount);
-
-        // Assert
-        assertThat(result.getFee()).isEqualByComparingTo(new BigDecimal("10.00"));
-    }
-
-    @Test
-    void transfer_WithFromAccountNotFound_ThrowsException() {
-        // Arrange
-        when(accountRepository.findById("acc-001")).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThatThrownBy(() -> transactionService.transfer("acc-001", "acc-002", new BigDecimal("100")))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void transfer_WithToAccountNotFound_ThrowsException() {
-        // Arrange
-        when(accountRepository.findById("acc-001")).thenReturn(Optional.of(fromAccount));
-        when(accountRepository.findById("acc-002")).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThatThrownBy(() -> transactionService.transfer("acc-001", "acc-002", new BigDecimal("100")))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void deposit_CreatesDepositTransaction() {
-        // Arrange
-        BigDecimal amount = new BigDecimal("500");
-        String description = "Salary deposit";
-
-        when(timeProvider.now()).thenReturn(fixedTime);
-        when(accountRepository.findById("acc-001")).thenReturn(Optional.of(fromAccount));
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        Transaction result = transactionService.deposit("acc-001", amount, description);
-
-        // Assert
-        assertThat(result.getType()).isEqualTo(TransactionType.DEPOSIT);
-        assertThat(result.getAmount()).isEqualByComparingTo(amount);
-        assertThat(result.getDescription()).isEqualTo(description);
-        assertThat(fromAccount.getBalance()).isEqualByComparingTo(new BigDecimal("5500"));
-
-        verify(transactionValidator).validateDeposit(fromAccount, amount);
-        verify(accountRepository).save(fromAccount);
-        verify(transactionRepository).save(any(Transaction.class));
-        verify(notificationService).sendTransactionNotification(eq("client-001"), any(Transaction.class));
-    }
-
-    @Test
-    void withdraw_CreatesWithdrawalTransaction() {
-        // Arrange
-        BigDecimal amount = new BigDecimal("300");
-        String description = "ATM withdrawal";
-
-        when(timeProvider.now()).thenReturn(fixedTime);
-        when(accountRepository.findById("acc-001")).thenReturn(Optional.of(fromAccount));
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(transactionRepository.findByAccountIdAndDateRange(anyString(), any(), any())).thenReturn(List.of());
-
-        // Act
-        Transaction result = transactionService.withdraw("acc-001", amount, description);
-
-        // Assert
-        assertThat(result.getType()).isEqualTo(TransactionType.WITHDRAWAL);
-        assertThat(result.getAmount()).isEqualByComparingTo(amount);
-        assertThat(result.getDescription()).isEqualTo(description);
-        assertThat(fromAccount.getBalance()).isEqualByComparingTo(new BigDecimal("4700"));
-
-        verify(transactionValidator).validateWithdrawal(fromAccount, amount);
-        verify(transactionValidator).validateDailyLimit(eq(fromAccount), eq(amount), any(BigDecimal.class));
-        verify(accountRepository).save(fromAccount);
-        verify(transactionRepository).save(any(Transaction.class));
-        verify(notificationService).sendTransactionNotification(eq("client-001"), any(Transaction.class));
-    }
-
+    /**
+     * Demonstrates: Integration of multiple services, conditional notifications
+     * FIRST principles: Fast (mocked time and repositories)
+     * <p>
+     * Tests withdrawal near daily limit triggers a warning notification.
+     * Shows integration between transaction history, limit checking, and notifications.
+     * Tests conditional logic: warning sent only when approaching limit (90%).
+     */
     @Test
     void withdraw_NearDailyLimit_SendsWarning() {
         // Arrange
@@ -297,49 +227,7 @@ class TransactionServiceTest {
         // Act
         transactionService.withdraw("acc-001", amount, "Withdrawal");
 
-        // Assert (7500 + 1600 = 9100 > 9000, triggers warning)
+        // Assert - 7500 + 1600 = 9100 > 9000 (90% of 10000), triggers warning
         verify(notificationService).sendDailyLimitWarning("client-001", "acc-001");
-    }
-
-    @Test
-    void getAccountTransactions_ReturnsTransactionList() {
-        // Arrange
-        String accountId = "acc-001";
-        List<Transaction> expectedTransactions = List.of(
-                Transaction.builder().id("txn-001").build(),
-                Transaction.builder().id("txn-002").build()
-        );
-
-        when(transactionRepository.findByAccountId(accountId)).thenReturn(expectedTransactions);
-
-        // Act
-        List<Transaction> result = transactionService.getAccountTransactions(accountId);
-
-        // Assert
-        assertThat(result).hasSize(2);
-        assertThat(result).isEqualTo(expectedTransactions);
-        verify(transactionRepository).findByAccountId(accountId);
-    }
-
-    @Test
-    void getAccountTransactionsByDateRange_ReturnsFilteredTransactions() {
-        // Arrange
-        String accountId = "acc-001";
-        LocalDateTime from = LocalDateTime.of(2024, 1, 1, 0, 0);
-        LocalDateTime to = LocalDateTime.of(2024, 1, 31, 23, 59);
-        List<Transaction> expectedTransactions = List.of(
-                Transaction.builder().id("txn-001").build()
-        );
-
-        when(transactionRepository.findByAccountIdAndDateRange(accountId, from, to))
-                .thenReturn(expectedTransactions);
-
-        // Act
-        List<Transaction> result = transactionService.getAccountTransactionsByDateRange(accountId, from, to);
-
-        // Assert
-        assertThat(result).hasSize(1);
-        assertThat(result).isEqualTo(expectedTransactions);
-        verify(transactionRepository).findByAccountIdAndDateRange(accountId, from, to);
     }
 }

@@ -24,8 +24,9 @@ public class Main {
 
     TransactionValidator validator = new TransactionValidator();
     NotificationService notificationService = new SimpleNotificationService();
-    FraudDetectionService fraudDetectionService = new SimpleFraudDetectionService();
-    ExchangeRateService exchangeRateService = new SimpleExchangeRateService();
+    FraudDetectionService fraudDetectionService = new SimpleFraudDetectionService(notificationService);
+    RateSource rateSource = new FileRateSource("1-2-unit-test-scratch/src/main/data/exchange-rates.txt");
+    ExchangeRateService exchangeRateService = new SimpleExchangeRateService(rateSource);
 
     AccountService accountService = new AccountService(
             accountRepository, validator, notificationService, fraudDetectionService, timeProvider

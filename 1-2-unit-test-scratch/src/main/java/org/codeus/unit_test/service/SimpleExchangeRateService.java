@@ -11,15 +11,15 @@ public class SimpleExchangeRateService implements ExchangeRateService {
 
     private final Map<String, BigDecimal> exchangeRates = new HashMap<>();
 
-    public SimpleExchangeRateService() {
-        initializeDefaultRates();
+    public SimpleExchangeRateService(RateSource rateSource) {
+        this.exchangeRates.putAll(rateSource.loadRates());
     }
 
     /**
      * Returns the exchange rate from one currency to another.
      *
      * @param from the source currency
-     * @param to the target currency
+     * @param to   the target currency
      * @return the exchange rate as BigDecimal
      * @throws IllegalArgumentException if currencies are null or rate is not available
      */
@@ -80,9 +80,4 @@ public class SimpleExchangeRateService implements ExchangeRateService {
         exchangeRates.clear();
     }
 
-    private void initializeDefaultRates() {
-        exchangeRates.put("USD_EUR", new BigDecimal("0.92"));
-        exchangeRates.put("USD_UAH", new BigDecimal("41.50"));
-        exchangeRates.put("EUR_UAH", new BigDecimal("45.00"));
-    }
 }

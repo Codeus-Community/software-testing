@@ -2,10 +2,20 @@ package org.codeus.unit_test.repository;
 
 import org.codeus.unit_test.model.Account;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * In-memory implementation of AccountRepository.
+ * <p>
+ * NOTE: Imagine this is a REAL DATABASE.
+ * In tests, this should be treated as an external dependency
+ * and mocked/stubbed appropriately to maintain test isolation.
+ */
 public class InMemoryAccountRepository implements AccountRepository {
     private final Map<String, Account> storage = new ConcurrentHashMap<>();
 

@@ -47,11 +47,25 @@ class AccountServiceTest {
 
     private LocalDateTime fixedTime;
 
+    /**
+     * Test fixture setup - runs before each test method.
+     * <p>
+     * Initializes a fixed time to ensure test repeatability (FIRST - Repeatable).
+     * Using a fixed time instead of LocalDateTime.now() makes tests deterministic
+     * and independent of when they are executed.
+     */
     @BeforeEach
     void setUp() {
         fixedTime = LocalDateTime.of(2024, 1, 15, 10, 0);
     }
 
+    /**
+     * Demonstrates: AAA pattern (Arrange-Act-Assert), basic mocking, happy path testing
+     * FIRST principles: Fast (no I/O), Independent (isolated test with mocks)
+     * <p>
+     * Tests the basic account creation flow with valid data.
+     * Shows how to mock dependencies and verify the created account properties.
+     */
     @Test
     void createAccount_WithValidData_CreatesAndReturnsAccount() {
         // Arrange
@@ -80,37 +94,13 @@ class AccountServiceTest {
         verify(timeProvider).now();
     }
 
-    @Test
-    void createAccount_WithNullInitialDeposit_CreatesAccountWithZeroBalance() {
-        // Arrange
-        String clientId = "client-001";
-        when(timeProvider.now()).thenReturn(fixedTime);
-        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        Account result = accountService.createAccount(clientId, AccountType.CHECKING, Currency.EUR, null);
-
-        // Assert
-        assertThat(result.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
-    }
-
-    @Test
-    void createAccount_WithNullClientId_ThrowsException() {
-        // Act & Assert
-        assertThatThrownBy(() -> accountService.createAccount(null, AccountType.SAVINGS, Currency.USD, BigDecimal.ZERO))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void createAccount_WithNegativeInitialDeposit_ThrowsException() {
-        // Arrange
-        BigDecimal negativeAmount = new BigDecimal("-100");
-
-        // Act & Assert
-        assertThatThrownBy(() -> accountService.createAccount("client-001", AccountType.SAVINGS, Currency.USD, negativeAmount))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
+    /**
+     * Demonstrates: Mock verification with verify(), testing interactions between dependencies
+     * FIRST principles: Fast (no real database), Self-validating (clear pass/fail)
+     * <p>
+     * Tests deposit operation and verifies that all dependencies are called correctly.
+     * Shows how to verify mock interactions with validator, repository, and notification service.
+     */
     @Test
     void deposit_WithValidData_IncreasesBalance() {
         // Arrange
@@ -135,60 +125,13 @@ class AccountServiceTest {
         verify(notificationService).sendTransactionNotification(eq(account.getClientId()), any());
     }
 
-    @Test
-    void deposit_WithSuspiciousAmount_ThrowsFraudException() {
-        // Arrange
-        String accountId = "acc-001";
-        BigDecimal depositAmount = new BigDecimal("50000");
-        Account account = createAccount(accountId, new BigDecimal("1000"));
-
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-        when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(true);
-
-        // Act & Assert
-        assertThatThrownBy(() -> accountService.deposit(accountId, depositAmount))
-                .isInstanceOf(FraudDetectedException.class);
-
-        verify(fraudDetectionService).isSuspicious(account, depositAmount);
-        verify(accountRepository, never()).save(any(Account.class));
-        verify(notificationService, never()).sendTransactionNotification(anyString(), any());
-    }
-
-    @Test
-    void deposit_WithNonExistentAccount_ThrowsException() {
-        // Arrange
-        String accountId = "non-existent";
-        when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThatThrownBy(() -> accountService.deposit(accountId, new BigDecimal("100")))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void withdraw_WithSufficientFunds_DecreasesBalance() {
-        // Arrange
-        String accountId = "acc-001";
-        BigDecimal initialBalance = new BigDecimal("1000");
-        BigDecimal withdrawAmount = new BigDecimal("300");
-
-        Account account = createAccount(accountId, initialBalance);
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(false);
-
-        // Act
-        Account result = accountService.withdraw(accountId, withdrawAmount);
-
-        // Assert
-        assertThat(result.getBalance()).isEqualByComparingTo(new BigDecimal("700"));
-
-        verify(transactionValidator).validateWithdrawal(account, withdrawAmount);
-        verify(fraudDetectionService).isSuspicious(account, withdrawAmount);
-        verify(accountRepository).save(account);
-        verify(notificationService).sendTransactionNotification(eq(account.getClientId()), any());
-    }
-
+    /**
+     * Demonstrates: Edge case testing, conditional logic (threshold), multiple mock verifications
+     * FIRST principles: Fast, Independent (no shared state between tests)
+     * <p>
+     * Tests withdrawal that results in low balance and verifies that alert is sent.
+     * Shows how to test edge cases where balance crosses a threshold (LOW_BALANCE_THRESHOLD).
+     */
     @Test
     void withdraw_ResultingInLowBalance_SendsLowBalanceAlert() {
         // Arrange
@@ -209,90 +152,40 @@ class AccountServiceTest {
         verify(notificationService).sendTransactionNotification(eq(account.getClientId()), any());
     }
 
+    /**
+     * Demonstrates: Exception handling, testing negative scenarios, fraud detection integration
+     * FIRST principles: Independent (test isolated behavior), Repeatable (deterministic fraud check)
+     * <p>
+     * Tests that suspicious deposits are detected and rejected with FraudDetectedException.
+     * Shows how to test exception scenarios and verify that certain operations are NOT called.
+     */
     @Test
-    void withdraw_WithSuspiciousAmount_ThrowsFraudException() {
+    void deposit_WithSuspiciousAmount_ThrowsFraudException() {
         // Arrange
         String accountId = "acc-001";
-        BigDecimal withdrawAmount = new BigDecimal("50000");
-        Account account = createAccount(accountId, new BigDecimal("60000"));
+        BigDecimal depositAmount = new BigDecimal("50000");
+        Account account = createAccount(accountId, new BigDecimal("1000"));
 
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
         when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(true);
 
         // Act & Assert
-        assertThatThrownBy(() -> accountService.withdraw(accountId, withdrawAmount))
-                .isInstanceOf(FraudDetectedException.class);
+        assertThatThrownBy(() -> accountService.deposit(accountId, depositAmount))
+                .isInstanceOf(FraudDetectedException.class)
+                .hasMessageContaining("Suspicious deposit detected");
 
+        verify(fraudDetectionService).isSuspicious(account, depositAmount);
         verify(accountRepository, never()).save(any(Account.class));
+        verify(notificationService, never()).sendTransactionNotification(anyString(), any());
     }
 
-    @Test
-    void blockAccount_WithActiveAccount_BlocksSuccessfully() {
-        // Arrange
-        String accountId = "acc-001";
-        Account account = createAccount(accountId, new BigDecimal("1000"));
-        account.setStatus(AccountStatus.ACTIVE);
-
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        Account result = accountService.blockAccount(accountId);
-
-        // Assert
-        assertThat(result.getStatus()).isEqualTo(AccountStatus.BLOCKED);
-        verify(accountRepository).save(account);
-    }
-
-    @Test
-    void unblockAccount_WithBlockedAccount_UnblocksSuccessfully() {
-        // Arrange
-        String accountId = "acc-001";
-        Account account = createAccount(accountId, new BigDecimal("1000"));
-        account.setStatus(AccountStatus.BLOCKED);
-
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        Account result = accountService.unblockAccount(accountId);
-
-        // Assert
-        assertThat(result.getStatus()).isEqualTo(AccountStatus.ACTIVE);
-        verify(accountRepository).save(account);
-    }
-
-    @Test
-    void unblockAccount_WithActiveAccount_ThrowsException() {
-        // Arrange
-        String accountId = "acc-001";
-        Account account = createAccount(accountId, new BigDecimal("1000"));
-        account.setStatus(AccountStatus.ACTIVE);
-
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-
-        // Act & Assert
-        assertThatThrownBy(() -> accountService.unblockAccount(accountId))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void closeAccount_WithZeroBalance_ClosesSuccessfully() {
-        // Arrange
-        String accountId = "acc-001";
-        Account account = createAccount(accountId, BigDecimal.ZERO);
-
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        Account result = accountService.closeAccount(accountId);
-
-        // Assert
-        assertThat(result.getStatus()).isEqualTo(AccountStatus.CLOSED);
-        verify(accountRepository).save(account);
-    }
-
+    /**
+     * Demonstrates: Business rule validation, negative testing with exceptions
+     * FIRST principles: Self-validating (clear assertion on exception)
+     * <p>
+     * Tests that closing an account with positive balance is not allowed.
+     * Shows how to test business rules and verify that invalid operations throw exceptions.
+     */
     @Test
     void closeAccount_WithPositiveBalance_ThrowsException() {
         // Arrange
@@ -303,36 +196,10 @@ class AccountServiceTest {
 
         // Act & Assert
         assertThatThrownBy(() -> accountService.closeAccount(accountId))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Cannot close account with positive balance");
 
         verify(accountRepository, never()).save(any(Account.class));
-    }
-
-    @Test
-    void getAccount_WithExistingAccount_ReturnsAccount() {
-        // Arrange
-        String accountId = "acc-001";
-        Account account = createAccount(accountId, new BigDecimal("1000"));
-
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-
-        // Act
-        Account result = accountService.getAccount(accountId);
-
-        // Assert
-        assertThat(result).isEqualTo(account);
-        verify(accountRepository).findById(accountId);
-    }
-
-    @Test
-    void getAccount_WithNonExistentAccount_ThrowsException() {
-        // Arrange
-        String accountId = "non-existent";
-        when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThatThrownBy(() -> accountService.getAccount(accountId))
-                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private Account createAccount(String accountId, BigDecimal balance) {

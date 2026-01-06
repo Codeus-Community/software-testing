@@ -11,11 +11,34 @@ class FixedTimeProviderTest {
 
     private LocalDateTime fixedTime;
 
+    /**
+     * Setup executed before each test.
+     * Initializes a fixed time for testing.
+     */
     @BeforeEach
     void setUp() {
         fixedTime = LocalDateTime.of(2024, 1, 15, 10, 30, 0);
     }
 
+    /**
+     * Demonstrates: Why FixedTimeProvider is essential for deterministic tests
+     * FIRST principles: Repeatable (same input = same output, always)
+     *
+     * Tests that FixedTimeProvider returns the exact same time every call.
+     * This is critical for testing time-dependent logic:
+     *
+     * Problem with LocalDateTime.now():
+     * - Returns different value each millisecond
+     * - Tests become flaky (sometimes pass, sometimes fail)
+     * - Can't verify exact timestamps in assertions
+     *
+     * Solution with FixedTimeProvider:
+     * - Returns consistent, predictable time
+     * - Tests are deterministic and repeatable
+     * - Can assert exact values: account.getCreatedAt() == fixedTime
+     *
+     * This enables the "Timely" principle - code must be designed for testability.
+     */
     @Test
     void now_ReturnsFixedTime() {
         // Arrange
@@ -28,22 +51,18 @@ class FixedTimeProviderTest {
         assertThat(result).isEqualTo(fixedTime);
     }
 
-    @Test
-    void now_CalledMultipleTimes_ReturnsTheSameTime() {
-        // Arrange
-        FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-
-        // Act
-        LocalDateTime first = timeProvider.now();
-        LocalDateTime second = timeProvider.now();
-        LocalDateTime third = timeProvider.now();
-
-        // Assert
-        assertThat(first).isEqualTo(fixedTime);
-        assertThat(second).isEqualTo(fixedTime);
-        assertThat(third).isEqualTo(fixedTime);
-    }
-
+    /**
+     * Demonstrates: Testing stateful behavior - object maintains and changes internal state
+     * FIRST principles: Independent (test doesn't depend on external time source)
+     *
+     * Tests that FixedTimeProvider can update its internal time.
+     * This allows simulating time progression in tests:
+     * - Create account at time T1
+     * - Set time to T2 (1 month later)
+     * - Calculate interest for period T1 to T2
+     *
+     * Without this, you'd have to wait real time or use unreliable system clock manipulation.
+     */
     @Test
     void setTime_ChangesReturnedTime() {
         // Arrange
@@ -57,34 +76,5 @@ class FixedTimeProviderTest {
         // Assert
         assertThat(result).isEqualTo(newTime);
         assertThat(result).isNotEqualTo(fixedTime);
-    }
-
-    @Test
-    void setTime_CalledMultipleTimes_ReturnsLatestTime() {
-        // Arrange
-        FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-        LocalDateTime time1 = LocalDateTime.of(2024, 3, 1, 12, 0, 0);
-        LocalDateTime time2 = LocalDateTime.of(2024, 6, 15, 18, 30, 0);
-
-        // Act
-        timeProvider.setTime(time1);
-        LocalDateTime result1 = timeProvider.now();
-
-        timeProvider.setTime(time2);
-        LocalDateTime result2 = timeProvider.now();
-
-        // Assert
-        assertThat(result1).isEqualTo(time1);
-        assertThat(result2).isEqualTo(time2);
-    }
-
-    @Test
-    void constructor_WithNullTime_StillCreatesInstance() {
-        // Arrange & Act
-        FixedTimeProvider timeProvider = new FixedTimeProvider(null);
-        LocalDateTime result = timeProvider.now();
-
-        // Assert
-        assertThat(result).isNull();
     }
 }

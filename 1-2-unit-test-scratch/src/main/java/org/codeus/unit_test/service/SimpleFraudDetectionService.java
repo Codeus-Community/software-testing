@@ -7,10 +7,14 @@ import org.codeus.unit_test.model.Transaction;
 import java.math.BigDecimal;
 
 public class SimpleFraudDetectionService implements FraudDetectionService {
-
+    private final NotificationService notificationService;
     private static final BigDecimal SUSPICIOUS_AMOUNT_THRESHOLD = new BigDecimal("10000");
     private static final BigDecimal BUSINESS_SUSPICIOUS_THRESHOLD = new BigDecimal("50000");
     private static final BigDecimal BALANCE_MULTIPLIER_THRESHOLD = new BigDecimal("5");
+
+    public SimpleFraudDetectionService(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @Override
     public boolean isSuspicious(Account account, BigDecimal amount) {
@@ -58,6 +62,9 @@ public class SimpleFraudDetectionService implements FraudDetectionService {
 
     @Override
     public void reportSuspiciousActivity(Transaction transaction) {
-        System.out.println("FRAUD ALERT: Suspicious transaction detected - " + transaction.getId());
+        notificationService.sendTransactionNotification(
+                "security-team",
+                transaction
+        );
     }
 }
