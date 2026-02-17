@@ -52,17 +52,7 @@ class InterestCalculatorTest {
          * Shows how to test mathematical calculations with BigDecimal precision.
          * Pure function testing - no mocks needed, just input and expected output.
          */
-        @Test
-        void calculateInterest_For30Days_ReturnsCorrectAmount() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusDays(30);
-
-            // Act
-            BigDecimal interest = calculator.calculateInterest(savingsAccount, startDate, endDate);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(new BigDecimal("4.11"));
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Boundary value testing (testing with minimum/edge values)
@@ -72,18 +62,15 @@ class InterestCalculatorTest {
          * Boundary testing ensures the function handles edge cases correctly (min/max/zero values).
          * Complements threshold testing from AccountServiceTest - here we test mathematical boundaries.
          */
-        @Test
-        void calculateInterest_ForZeroDays_ReturnsZero() {
-            // Arrange
-            LocalDateTime endDate = startDate;
+        // TODO: implement test
 
-            // Act
-            BigDecimal interest = calculator.calculateInterest(savingsAccount, startDate, endDate);
+    }
 
-            // Assert
-            assertThat(interest).isEqualByComparingTo(BigDecimal.ZERO);
-        }
-
+    /**
+     * Optional test cases for InterestCalculator - additional practice scenarios.
+     */
+    @Nested
+    class OptionalPart {
         /**
          * Demonstrates: Parametrized testing with @MethodSource for data-driven tests
          * FIRST principles: Fast (no I/O), Repeatable (same inputs always produce same outputs)
@@ -99,17 +86,8 @@ class InterestCalculatorTest {
          */
         @ParameterizedTest
         @MethodSource("provideAccountTypesAndExpectedRates")
-        void calculateInterest_ForDifferentAccountTypes_ReturnsExpectedInterest(
-                AccountType accountType, BigDecimal expectedInterestFor365Days) {
-            // Arrange
-            savingsAccount.setType(accountType);
-            LocalDateTime endDate = startDate.plusDays(365);
-
-            // Act
-            BigDecimal interest = calculator.calculateInterest(savingsAccount, startDate, endDate);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(expectedInterestFor365Days);
+        void calculateInterest_ForDifferentAccountTypes_ReturnsExpectedInterest() {
+            // TODO: implement test
         }
 
         /**
@@ -124,14 +102,6 @@ class InterestCalculatorTest {
             );
         }
 
-    }
-
-    /**
-     * Optional test cases for InterestCalculator - additional practice scenarios.
-     * Copy this entire class and paste it inside InterestCalculatorTest as a nested class named OptionalPart.
-     */
-    @Nested
-    class OptionalPart {
 
         /**
          * Demonstrates: Testing with minimal time period (1 day)
@@ -143,14 +113,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_ForOneDay_ReturnsCorrectAmount() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusDays(1);
-
-            // Act
-            BigDecimal interest = calculator.calculateInterest(savingsAccount, startDate, endDate);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(new BigDecimal("0.14"));
+            // TODO: implement test
         }
 
         /**
@@ -163,14 +126,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_For90Days_ReturnsCorrectAmount() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusDays(90);
-
-            // Act
-            BigDecimal interest = calculator.calculateInterest(savingsAccount, startDate, endDate);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(new BigDecimal("12.33"));
+            // TODO: implement test
         }
 
         /**
@@ -183,14 +139,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_ForMultipleYears_ReturnsCorrectAmount() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusYears(2);
-
-            // Act
-            BigDecimal interest = calculator.calculateInterest(savingsAccount, startDate, endDate);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(new BigDecimal("100.14"));
+            // TODO: implement test
         }
 
         /**
@@ -204,17 +153,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateCompoundInterest_WithMonthlyCompounding_ReturnsCorrectAmount() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusYears(1);
-            int monthlyCompounding = 12;
-
-            // Act
-            BigDecimal interest = calculator.calculateCompoundInterest(
-                    savingsAccount, startDate, endDate, monthlyCompounding);
-
-            // Assert
-            // For 1000 at 5% annual, compounded monthly for 1 year: ~51.16
-            assertThat(interest).isEqualByComparingTo(new BigDecimal("51.16"));
+            // TODO: implement test
         }
 
         /**
@@ -227,17 +166,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateCompoundInterest_WithQuarterlyCompounding_ReturnsCorrectAmount() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusYears(1);
-            int quarterlyCompounding = 4;
-
-            // Act
-            BigDecimal interest = calculator.calculateCompoundInterest(
-                    savingsAccount, startDate, endDate, quarterlyCompounding);
-
-            // Assert
-            // For 1000 at 5% annual, compounded quarterly for 1 year: ~50.95
-            assertThat(interest).isEqualByComparingTo(new BigDecimal("50.95"));
+            // TODO: implement test
         }
 
         /**
@@ -250,17 +179,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateCompoundInterest_WithDailyCompounding_ReturnsCorrectAmount() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusYears(1);
-            int dailyCompounding = 365;
-
-            // Act
-            BigDecimal interest = calculator.calculateCompoundInterest(
-                    savingsAccount, startDate, endDate, dailyCompounding);
-
-            // Assert
-            // For 1000 at 5% annual, compounded daily for 1 year: ~51.27
-            assertThat(interest).isEqualByComparingTo(new BigDecimal("51.27"));
+            // TODO: implement test
         }
 
         /**
@@ -273,14 +192,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_WithNullAccount_ThrowsException() {
-            // Arrange
-            Account nullAccount = null;
-            LocalDateTime endDate = startDate.plusDays(30);
-
-            // Act & Assert
-            assertThatThrownBy(() -> calculator.calculateInterest(nullAccount, startDate, endDate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account and dates cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -292,14 +204,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_WithNullFromDate_ThrowsException() {
-            // Arrange
-            LocalDateTime nullFromDate = null;
-            LocalDateTime toDate = startDate.plusDays(30);
-
-            // Act & Assert
-            assertThatThrownBy(() -> calculator.calculateInterest(savingsAccount, nullFromDate, toDate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account and dates cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -311,13 +216,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_WithNullToDate_ThrowsException() {
-            // Arrange
-            LocalDateTime nullToDate = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> calculator.calculateInterest(savingsAccount, startDate, nullToDate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account and dates cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -330,13 +229,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_WithEndDateBeforeStartDate_ThrowsException() {
-            // Arrange
-            LocalDateTime endDate = startDate.minusDays(1);
-
-            // Act & Assert
-            assertThatThrownBy(() -> calculator.calculateInterest(savingsAccount, startDate, endDate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("End date cannot be before start date");
+            // TODO: implement test
         }
 
         /**
@@ -349,15 +242,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateInterest_WithZeroBalance_ReturnsZero() {
-            // Arrange
-            savingsAccount.setBalance(BigDecimal.ZERO);
-            LocalDateTime endDate = startDate.plusDays(365);
-
-            // Act
-            BigDecimal interest = calculator.calculateInterest(savingsAccount, startDate, endDate);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(BigDecimal.ZERO);
+            // TODO: implement test
         }
 
         /**
@@ -370,17 +255,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateCompoundInterest_WithZeroBalance_ReturnsZero() {
-            // Arrange
-            savingsAccount.setBalance(BigDecimal.ZERO);
-            LocalDateTime endDate = startDate.plusDays(365);
-            int monthlyCompounding = 12;
-
-            // Act
-            BigDecimal interest = calculator.calculateCompoundInterest(
-                    savingsAccount, startDate, endDate, monthlyCompounding);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(BigDecimal.ZERO);
+            // TODO: implement test
         }
 
         /**
@@ -393,15 +268,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateCompoundInterest_WithZeroCompoundingPeriods_ThrowsException() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusYears(1);
-            int zeroCompounding = 0;
-
-            // Act & Assert
-            assertThatThrownBy(() -> calculator.calculateCompoundInterest(
-                    savingsAccount, startDate, endDate, zeroCompounding))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Compounding periods must be positive");
+            // TODO: implement test
         }
 
         /**
@@ -413,15 +280,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateCompoundInterest_WithNegativeCompoundingPeriods_ThrowsException() {
-            // Arrange
-            LocalDateTime endDate = startDate.plusYears(1);
-            int negativeCompounding = -5;
-
-            // Act & Assert
-            assertThatThrownBy(() -> calculator.calculateCompoundInterest(
-                    savingsAccount, startDate, endDate, negativeCompounding))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Compounding periods must be positive");
+            // TODO: implement test;
         }
 
         /**
@@ -433,16 +292,7 @@ class InterestCalculatorTest {
          */
         @Test
         void calculateCompoundInterest_ForZeroDays_ReturnsZero() {
-            // Arrange
-            LocalDateTime endDate = startDate;
-            int monthlyCompounding = 12;
-
-            // Act
-            BigDecimal interest = calculator.calculateCompoundInterest(
-                    savingsAccount, startDate, endDate, monthlyCompounding);
-
-            // Assert
-            assertThat(interest).isEqualByComparingTo(BigDecimal.ZERO);
+            // TODO: implement test
         }
 
         /**
@@ -454,13 +304,7 @@ class InterestCalculatorTest {
          */
         @Test
         void getAnnualRate_WithNullAccountType_ThrowsException() {
-            // Arrange
-            AccountType nullType = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> calculator.getAnnualRate(nullType))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account type cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -473,13 +317,7 @@ class InterestCalculatorTest {
          */
         @Test
         void getAnnualRate_ReturnsCorrectRatesForAllAccountTypes() {
-            // Act & Assert
-            assertThat(calculator.getAnnualRate(AccountType.SAVINGS))
-                    .isEqualByComparingTo(new BigDecimal("0.05"));
-            assertThat(calculator.getAnnualRate(AccountType.CHECKING))
-                    .isEqualByComparingTo(new BigDecimal("0.01"));
-            assertThat(calculator.getAnnualRate(AccountType.BUSINESS))
-                    .isEqualByComparingTo(new BigDecimal("0.03"));
+            // TODO: implement test
         }
     }
 }

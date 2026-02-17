@@ -49,14 +49,7 @@ class SimpleExchangeRateServiceTest {
          * Exchange rate should always be 1.0 for same currency conversion.
          * This is a mathematical identity property: X -> X = 1.
          */
-        @Test
-        void getExchangeRate_ForSameCurrency_ReturnsOne() {
-            // Act
-            BigDecimal rate = exchangeRateService.getExchangeRate(Currency.USD, Currency.USD);
-
-            // Assert
-            assertThat(rate).isEqualByComparingTo(BigDecimal.ONE);
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Testing stateful services (service that maintains internal state)
@@ -66,18 +59,7 @@ class SimpleExchangeRateServiceTest {
          * Verifies that setExchangeRate modifies the rate and getExchangeRate retrieves it correctly.
          * Stateful testing ensures the service maintains data correctly between operations.
          */
-        @Test
-        void setExchangeRate_UpdatesRate() {
-            // Arrange
-            BigDecimal newRate = new BigDecimal("1.00");
-
-            // Act
-            exchangeRateService.setExchangeRate(Currency.USD, Currency.EUR, newRate);
-            BigDecimal result = exchangeRateService.getExchangeRate(Currency.USD, Currency.EUR);
-
-            // Assert
-            assertThat(result).isEqualByComparingTo(newRate);
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Test isolation and repeatability through state cleanup
@@ -88,33 +70,23 @@ class SimpleExchangeRateServiceTest {
          * This is crucial for test independence - each test should be able to run in isolation.
          * After clearing, attempting to get a rate should throw an exception.
          */
-        @Test
-        void clearRates_RemovesAllRates() {
-            // Act
-            exchangeRateService.clearRates();
+        // TODO: implement test
 
-            // Assert
-            assertThatThrownBy(() -> exchangeRateService.getExchangeRate(Currency.USD, Currency.EUR))
-                    .isInstanceOf(IllegalArgumentException.class);
-        }
-
-        @Test
-        void constructor_CallsLoadRatesOnProvidedRateSource() {
-            // Arrange
-            RateSource mockRateSource = mock(RateSource.class);
-            when(mockRateSource.loadRates()).thenReturn(new HashMap<>());
-
-            // Act
-            new SimpleExchangeRateService(mockRateSource);
-
-            // Assert
-            verify(mockRateSource).loadRates();
-        }
+        /**
+         * Demonstrates: Verifying constructor behavior using manual mock creation with mock()
+         * FIRST principles: Fast (no I/O), Independent (isolated constructor test)
+         * <p>
+         * Tests that SimpleExchangeRateService calls loadRates() on the provided RateSource
+         * during construction. This verifies the dependency is used correctly at initialization.
+         * <p>
+         * Uses manual mock creation with mock() instead of @Mock annotation to show
+         * an alternative mocking approach when mock is only needed within a single test.
+         */
+        // TODO: implement test
     }
 
     /**
      * Optional test cases for SimpleExchangeRateService - additional practice scenarios.
-     * Copy this entire class and paste it inside SimpleExchangeRateServiceTest as a nested class named OptionalPart.
      */
     @Nested
     class OptionalPart {
@@ -129,14 +101,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_FromUsdToEur_ReturnsCorrectAmount() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act
-            BigDecimal result = exchangeRateService.convert(amount, Currency.USD, Currency.EUR);
-
-            // Assert
-            assertThat(result).isEqualByComparingTo(new BigDecimal("92.00"));
+            // TODO: implement test
         }
 
         /**
@@ -149,14 +114,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_FromUsdToUah_ReturnsCorrectAmount() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act
-            BigDecimal result = exchangeRateService.convert(amount, Currency.USD, Currency.UAH);
-
-            // Assert
-            assertThat(result).isEqualByComparingTo(new BigDecimal("4150.00"));
+            // TODO: implement test
         }
 
         /**
@@ -169,14 +127,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_FromEurToUah_ReturnsCorrectAmount() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act
-            BigDecimal result = exchangeRateService.convert(amount, Currency.EUR, Currency.UAH);
-
-            // Assert
-            assertThat(result).isEqualByComparingTo(new BigDecimal("4500.00"));
+            // TODO: implement test
         }
 
         /**
@@ -190,12 +141,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void getExchangeRate_ForReverseRate_CalculatesCorrectly() {
-            // Act
-            BigDecimal rate = exchangeRateService.getExchangeRate(Currency.EUR, Currency.USD);
-
-            // Assert
-            // Should be approximately 1/0.92 = 1.086957
-            assertThat(rate).isEqualByComparingTo(new BigDecimal("1.086957"));
+            // TODO: implement test
         }
 
         /**
@@ -208,15 +154,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_UsingReverseRate_ReturnsCorrectAmount() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act
-            BigDecimal result = exchangeRateService.convert(amount, Currency.UAH, Currency.USD);
-
-            // Assert
-            // 100 * (1/41.50) = 2.41
-            assertThat(result).isEqualByComparingTo(new BigDecimal("2.41"));
+            // TODO: implement test
         }
 
         /**
@@ -229,14 +167,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void getExchangeRate_ForwardAndReverse_AreInverses() {
-            // Act
-            BigDecimal forwardRate = exchangeRateService.getExchangeRate(Currency.USD, Currency.EUR);
-            BigDecimal reverseRate = exchangeRateService.getExchangeRate(Currency.EUR, Currency.USD);
-
-            // Assert
-            BigDecimal product = forwardRate.multiply(reverseRate);
-            // Use tolerance for floating point precision (should be very close to 1.0)
-            assertThat(product.doubleValue()).isCloseTo(1.0, within(0.0001));
+            // TODO: implement test
         }
 
         /**
@@ -248,13 +179,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_WithNullAmount_ThrowsException() {
-            // Arrange
-            BigDecimal nullAmount = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.convert(nullAmount, Currency.USD, Currency.EUR))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Amount cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -266,13 +191,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_WithNegativeAmount_ThrowsException() {
-            // Arrange
-            BigDecimal negativeAmount = new BigDecimal("-100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.convert(negativeAmount, Currency.USD, Currency.EUR))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Amount cannot be negative");
+            // TODO: implement test
         }
 
         /**
@@ -285,14 +204,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_WithZeroAmount_ReturnsZero() {
-            // Arrange
-            BigDecimal zeroAmount = BigDecimal.ZERO;
-
-            // Act
-            BigDecimal result = exchangeRateService.convert(zeroAmount, Currency.USD, Currency.EUR);
-
-            // Assert
-            assertThat(result).isEqualByComparingTo(BigDecimal.ZERO);
+            // TODO: implement test
         }
 
         /**
@@ -304,14 +216,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void setExchangeRate_WithNullFromCurrency_ThrowsException() {
-            // Arrange
-            Currency nullFrom = null;
-            BigDecimal rate = new BigDecimal("1.5");
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.setExchangeRate(nullFrom, Currency.EUR, rate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Parameters cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -323,14 +228,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void setExchangeRate_WithNullToCurrency_ThrowsException() {
-            // Arrange
-            Currency nullTo = null;
-            BigDecimal rate = new BigDecimal("1.5");
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.setExchangeRate(Currency.USD, nullTo, rate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Parameters cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -342,13 +240,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void setExchangeRate_WithNullRate_ThrowsException() {
-            // Arrange
-            BigDecimal nullRate = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.setExchangeRate(Currency.USD, Currency.EUR, nullRate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Parameters cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -360,13 +252,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void setExchangeRate_WithNegativeRate_ThrowsException() {
-            // Arrange
-            BigDecimal negativeRate = new BigDecimal("-1.5");
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.setExchangeRate(Currency.USD, Currency.EUR, negativeRate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Exchange rate must be positive");
+            // TODO: implement test
         }
 
         /**
@@ -379,13 +265,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void setExchangeRate_WithZeroRate_ThrowsException() {
-            // Arrange
-            BigDecimal zeroRate = BigDecimal.ZERO;
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.setExchangeRate(Currency.USD, Currency.EUR, zeroRate))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Exchange rate must be positive");
+            // TODO: implement test
         }
 
         /**
@@ -397,13 +277,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void getExchangeRate_WithNullFromCurrency_ThrowsException() {
-            // Arrange
-            Currency nullFrom = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.getExchangeRate(nullFrom, Currency.EUR))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Currencies cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -415,13 +289,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void getExchangeRate_WithNullToCurrency_ThrowsException() {
-            // Arrange
-            Currency nullTo = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.getExchangeRate(Currency.USD, nullTo))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Currencies cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -434,13 +302,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void getExchangeRate_AfterClearRates_ThrowsException() {
-            // Arrange
-            exchangeRateService.clearRates();
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.getExchangeRate(Currency.USD, Currency.EUR))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Exchange rate not available");
+            // TODO: implement test
         }
 
         /**
@@ -457,20 +319,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_ChainedConversion_ProducesReasonableResult() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act
-            BigDecimal usdToEur = exchangeRateService.convert(amount, Currency.USD, Currency.EUR);
-            BigDecimal eurToUah = exchangeRateService.convert(usdToEur, Currency.EUR, Currency.UAH);
-            BigDecimal directUsdToUah = exchangeRateService.convert(amount, Currency.USD, Currency.UAH);
-
-            // Assert
-            // Chained: 100 -> 92.00 EUR -> 4140.00 UAH
-            assertThat(eurToUah).isEqualByComparingTo(new BigDecimal("4140.00"));
-            // Direct: 100 -> 4150.00 UAH
-            assertThat(directUsdToUah).isEqualByComparingTo(new BigDecimal("4150.00"));
-            // They differ due to rate precision, both are valid
+            // TODO: implement test
         }
 
         /**
@@ -482,14 +331,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_WithNullFromCurrency_ThrowsException() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("100");
-            Currency nullFrom = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.convert(amount, nullFrom, Currency.EUR))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Currencies cannot be null");
+            // TODO: implement test
         }
 
         /**
@@ -501,14 +343,7 @@ class SimpleExchangeRateServiceTest {
          */
         @Test
         void convert_WithNullToCurrency_ThrowsException() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("100");
-            Currency nullTo = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> exchangeRateService.convert(amount, Currency.USD, nullTo))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Currencies cannot be null");
+            // TODO: implement test
         }
     }
 }

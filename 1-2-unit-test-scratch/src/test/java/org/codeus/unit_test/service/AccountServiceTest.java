@@ -86,33 +86,7 @@ class AccountServiceTest {
          * Tests the basic account creation flow with valid data.
          * Shows how to mock dependencies and verify the created account properties.
          */
-        @Test
-        void createAccount_WithValidData_CreatesAndReturnsAccount() {
-            // Arrange
-            String clientId = "client-001";
-            AccountType type = AccountType.SAVINGS;
-            Currency currency = Currency.USD;
-            BigDecimal initialDeposit = new BigDecimal("1000");
-
-            when(timeProvider.now()).thenReturn(fixedTime);
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.createAccount(clientId, type, currency, initialDeposit);
-
-            // Assert
-            assertThat(result).isNotNull();
-            assertThat(result.getClientId()).isEqualTo(clientId);
-            assertThat(result.getType()).isEqualTo(type);
-            assertThat(result.getCurrency()).isEqualTo(currency);
-            assertThat(result.getBalance()).isEqualByComparingTo(initialDeposit);
-            assertThat(result.getStatus()).isEqualTo(AccountStatus.ACTIVE);
-            assertThat(result.getCreatedAt()).isEqualTo(fixedTime);
-            assertThat(result.getDailyWithdrawalLimit()).isEqualByComparingTo(new BigDecimal("5000"));
-
-            verify(accountRepository).save(any(Account.class));
-            verify(timeProvider).now();
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Mock verification with verify(), testing interactions between dependencies
@@ -121,29 +95,7 @@ class AccountServiceTest {
          * Tests deposit operation and verifies that all dependencies are called correctly.
          * Shows how to verify mock interactions with validator, repository, and notification service.
          */
-        @Test
-        void deposit_WithValidData_IncreasesBalance() {
-            // Arrange
-            String accountId = "acc-001";
-            BigDecimal initialBalance = new BigDecimal("1000");
-            BigDecimal depositAmount = new BigDecimal("500");
-
-            Account account = createAccount(accountId, initialBalance);
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(false);
-
-            // Act
-            Account result = accountService.deposit(accountId, depositAmount);
-
-            // Assert
-            assertThat(result.getBalance()).isEqualByComparingTo(new BigDecimal("1500"));
-
-            verify(transactionValidator).validateDeposit(account, depositAmount);
-            verify(fraudDetectionService).isSuspicious(account, depositAmount);
-            verify(accountRepository).save(account);
-            verify(notificationService).sendTransactionNotification(eq(account.getClientId()), any());
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Edge case testing, conditional logic (threshold), multiple mock verifications
@@ -152,25 +104,7 @@ class AccountServiceTest {
          * Tests withdrawal that results in low balance and verifies that alert is sent.
          * Shows how to test edge cases where balance crosses a threshold (LOW_BALANCE_THRESHOLD).
          */
-        @Test
-        void withdraw_ResultingInLowBalance_SendsLowBalanceAlert() {
-            // Arrange
-            String accountId = "acc-001";
-            BigDecimal initialBalance = new BigDecimal("150");
-            BigDecimal withdrawAmount = new BigDecimal("100");
-
-            Account account = createAccount(accountId, initialBalance);
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(false);
-
-            // Act
-            accountService.withdraw(accountId, withdrawAmount);
-
-            // Assert
-            verify(notificationService).sendLowBalanceAlert(account.getClientId(), accountId);
-            verify(notificationService).sendTransactionNotification(eq(account.getClientId()), any());
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Exception handling, testing negative scenarios, fraud detection integration
@@ -179,25 +113,7 @@ class AccountServiceTest {
          * Tests that suspicious deposits are detected and rejected with FraudDetectedException.
          * Shows how to test exception scenarios and verify that certain operations are NOT called.
          */
-        @Test
-        void deposit_WithSuspiciousAmount_ThrowsFraudException() {
-            // Arrange
-            String accountId = "acc-001";
-            BigDecimal depositAmount = new BigDecimal("50000");
-            Account account = createAccount(accountId, new BigDecimal("1000"));
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(true);
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.deposit(accountId, depositAmount))
-                    .isInstanceOf(FraudDetectedException.class)
-                    .hasMessageContaining("Suspicious deposit detected");
-
-            verify(fraudDetectionService).isSuspicious(account, depositAmount);
-            verify(accountRepository, never()).save(any(Account.class));
-            verify(notificationService, never()).sendTransactionNotification(anyString(), any());
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Business rule validation, negative testing with exceptions
@@ -206,26 +122,11 @@ class AccountServiceTest {
          * Tests that closing an account with positive balance is not allowed.
          * Shows how to test business rules and verify that invalid operations throw exceptions.
          */
-        @Test
-        void closeAccount_WithPositiveBalance_ThrowsException() {
-            // Arrange
-            String accountId = "acc-001";
-            Account account = createAccount(accountId, new BigDecimal("100"));
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.closeAccount(accountId))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Cannot close account with positive balance");
-
-            verify(accountRepository, never()).save(any(Account.class));
-        }
+        // TODO: implement test
     }
 
     /**
      * Optional test cases for AccountService - additional practice scenarios.
-     * Copy this entire class and paste it inside AccountServiceTest as a nested class named OptionalPart.
      */
     @Nested
     class OptionalPart {
@@ -242,22 +143,8 @@ class AccountServiceTest {
          */
         @ParameterizedTest
         @MethodSource("provideAccountTypesAndLimits")
-        void createAccount_WithDifferentAccountTypes_SetsCorrectDailyLimit(
-                AccountType accountType, BigDecimal expectedLimit) {
-            // Arrange
-            String clientId = "client-001";
-            Currency currency = Currency.USD;
-            BigDecimal initialDeposit = new BigDecimal("1000");
-
-            when(timeProvider.now()).thenReturn(fixedTime);
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.createAccount(clientId, accountType, currency, initialDeposit);
-
-            // Assert
-            assertThat(result.getDailyWithdrawalLimit()).isEqualByComparingTo(expectedLimit);
-            assertThat(result.getType()).isEqualTo(accountType);
+        void createAccount_WithDifferentAccountTypes_SetsCorrectDailyLimit() {
+            // TODO: implement test
         }
 
         private static Stream<Arguments> provideAccountTypesAndLimits() {
@@ -278,21 +165,8 @@ class AccountServiceTest {
          */
         @ParameterizedTest
         @EnumSource(Currency.class)
-        void createAccount_WithDifferentCurrencies_CreatesAccountSuccessfully(Currency currency) {
-            // Arrange
-            String clientId = "client-001";
-            AccountType type = AccountType.CHECKING;
-            BigDecimal initialDeposit = new BigDecimal("500");
-
-            when(timeProvider.now()).thenReturn(fixedTime);
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.createAccount(clientId, type, currency, initialDeposit);
-
-            // Assert
-            assertThat(result.getCurrency()).isEqualTo(currency);
-            assertThat(result.getBalance()).isEqualByComparingTo(initialDeposit);
+        void createAccount_WithDifferentCurrencies_CreatesAccountSuccessfully() {
+            // TODO: implement test
         }
 
         /**
@@ -305,18 +179,7 @@ class AccountServiceTest {
          */
         @Test
         void createAccount_WithNullClientId_ThrowsException() {
-            // Arrange
-            String clientId = null;
-            AccountType type = AccountType.CHECKING;
-            Currency currency = Currency.USD;
-            BigDecimal initialDeposit = new BigDecimal("1000");
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.createAccount(clientId, type, currency, initialDeposit))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Client ID, account type, and currency are required");
-
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -328,18 +191,7 @@ class AccountServiceTest {
          */
         @Test
         void createAccount_WithNullAccountType_ThrowsException() {
-            // Arrange
-            String clientId = "client-001";
-            AccountType type = null;
-            Currency currency = Currency.USD;
-            BigDecimal initialDeposit = new BigDecimal("1000");
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.createAccount(clientId, type, currency, initialDeposit))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Client ID, account type, and currency are required");
-
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -351,18 +203,7 @@ class AccountServiceTest {
          */
         @Test
         void createAccount_WithNullCurrency_ThrowsException() {
-            // Arrange
-            String clientId = "client-001";
-            AccountType type = AccountType.CHECKING;
-            Currency currency = null;
-            BigDecimal initialDeposit = new BigDecimal("1000");
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.createAccount(clientId, type, currency, initialDeposit))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Client ID, account type, and currency are required");
-
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -375,18 +216,7 @@ class AccountServiceTest {
          */
         @Test
         void createAccount_WithNegativeInitialDeposit_ThrowsException() {
-            // Arrange
-            String clientId = "client-001";
-            AccountType type = AccountType.CHECKING;
-            Currency currency = Currency.USD;
-            BigDecimal initialDeposit = new BigDecimal("-100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.createAccount(clientId, type, currency, initialDeposit))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Initial deposit cannot be negative");
-
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -399,21 +229,7 @@ class AccountServiceTest {
          */
         @Test
         void createAccount_WithZeroInitialDeposit_CreatesAccountSuccessfully() {
-            // Arrange
-            String clientId = "client-001";
-            AccountType type = AccountType.CHECKING;
-            Currency currency = Currency.USD;
-            BigDecimal initialDeposit = BigDecimal.ZERO;
-
-            when(timeProvider.now()).thenReturn(fixedTime);
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.createAccount(clientId, type, currency, initialDeposit);
-
-            // Assert
-            assertThat(result.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
-            verify(accountRepository).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -426,20 +242,7 @@ class AccountServiceTest {
          */
         @Test
         void createAccount_WithNullInitialDeposit_CreatesAccountWithZeroBalance() {
-            // Arrange
-            String clientId = "client-001";
-            AccountType type = AccountType.CHECKING;
-            Currency currency = Currency.USD;
-            BigDecimal initialDeposit = null;
-
-            when(timeProvider.now()).thenReturn(fixedTime);
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.createAccount(clientId, type, currency, initialDeposit);
-
-            // Assert
-            assertThat(result.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
+            // TODO: implement test
         }
 
         /**
@@ -452,22 +255,7 @@ class AccountServiceTest {
          */
         @Test
         void withdraw_LeavingExactThresholdBalance_DoesNotSendAlert() {
-            // Arrange
-            String accountId = "acc-001";
-            BigDecimal initialBalance = new BigDecimal("200");
-            BigDecimal withdrawAmount = new BigDecimal("100");
-
-            Account account = createAccount(accountId, initialBalance);
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(false);
-
-            // Act
-            accountService.withdraw(accountId, withdrawAmount);
-
-            // Assert - balance is exactly 100, should NOT trigger alert (threshold is < 100, not <= 100)
-            verify(notificationService, never()).sendLowBalanceAlert(anyString(), anyString());
-            verify(notificationService).sendTransactionNotification(eq(account.getClientId()), any());
+            // TODO: implement test
         }
 
         /**
@@ -480,22 +268,7 @@ class AccountServiceTest {
          */
         @Test
         void withdraw_LeavingBalanceJustBelowThreshold_SendsAlert() {
-            // Arrange
-            String accountId = "acc-001";
-            BigDecimal initialBalance = new BigDecimal("200");
-            BigDecimal withdrawAmount = new BigDecimal("100.01");
-
-            Account account = createAccount(accountId, initialBalance);
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(false);
-
-            // Act
-            accountService.withdraw(accountId, withdrawAmount);
-
-            // Assert - balance is 99.99, should trigger alert
-            verify(notificationService).sendLowBalanceAlert(account.getClientId(), accountId);
-            verify(notificationService).sendTransactionNotification(eq(account.getClientId()), any());
+            // TODO: implement test
         }
 
         /**
@@ -508,20 +281,7 @@ class AccountServiceTest {
          */
         @Test
         void blockAccount_WithActiveAccount_BlocksSuccessfully() {
-            // Arrange
-            String accountId = "acc-001";
-            Account account = createAccount(accountId, new BigDecimal("1000"));
-            account.setStatus(AccountStatus.ACTIVE);
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.blockAccount(accountId);
-
-            // Assert
-            assertThat(result.getStatus()).isEqualTo(AccountStatus.BLOCKED);
-            verify(accountRepository).save(account);
+            // TODO: implement test
         }
 
         /**
@@ -533,20 +293,7 @@ class AccountServiceTest {
          */
         @Test
         void unblockAccount_WithBlockedAccount_UnblocksSuccessfully() {
-            // Arrange
-            String accountId = "acc-001";
-            Account account = createAccount(accountId, new BigDecimal("1000"));
-            account.setStatus(AccountStatus.BLOCKED);
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.unblockAccount(accountId);
-
-            // Assert
-            assertThat(result.getStatus()).isEqualTo(AccountStatus.ACTIVE);
-            verify(accountRepository).save(account);
+            // TODO: implement test
         }
 
         /**
@@ -559,19 +306,7 @@ class AccountServiceTest {
          */
         @Test
         void unblockAccount_WithActiveAccount_ThrowsException() {
-            // Arrange
-            String accountId = "acc-001";
-            Account account = createAccount(accountId, new BigDecimal("1000"));
-            account.setStatus(AccountStatus.ACTIVE);
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.unblockAccount(accountId))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account is not blocked");
-
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -584,19 +319,7 @@ class AccountServiceTest {
          */
         @Test
         void closeAccount_WithZeroBalance_ClosesSuccessfully() {
-            // Arrange
-            String accountId = "acc-001";
-            Account account = createAccount(accountId, BigDecimal.ZERO);
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            Account result = accountService.closeAccount(accountId);
-
-            // Assert
-            assertThat(result.getStatus()).isEqualTo(AccountStatus.CLOSED);
-            verify(accountRepository).save(account);
+            // TODO: implement test
         }
 
         /**
@@ -609,18 +332,7 @@ class AccountServiceTest {
          */
         @Test
         void deposit_WithNonExistentAccount_ThrowsException() {
-            // Arrange
-            String accountId = "non-existent";
-            BigDecimal amount = new BigDecimal("100");
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.deposit(accountId, amount))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account not found");
-
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -633,18 +345,7 @@ class AccountServiceTest {
          */
         @Test
         void withdraw_WithNonExistentAccount_ThrowsException() {
-            // Arrange
-            String accountId = "non-existent";
-            BigDecimal amount = new BigDecimal("100");
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.withdraw(accountId, amount))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account not found");
-
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
 
         /**
@@ -657,22 +358,7 @@ class AccountServiceTest {
          */
         @Test
         void withdraw_WithSuspiciousAmount_ThrowsFraudException() {
-            // Arrange
-            String accountId = "acc-001";
-            BigDecimal withdrawAmount = new BigDecimal("50000");
-            Account account = createAccount(accountId, new BigDecimal("60000"));
-
-            when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
-            when(fraudDetectionService.isSuspicious(any(Account.class), any(BigDecimal.class))).thenReturn(true);
-
-            // Act & Assert
-            assertThatThrownBy(() -> accountService.withdraw(accountId, withdrawAmount))
-                    .isInstanceOf(FraudDetectedException.class)
-                    .hasMessageContaining("Suspicious withdrawal detected");
-
-            verify(fraudDetectionService).isSuspicious(account, withdrawAmount);
-            verify(accountRepository, never()).save(any(Account.class));
+            // TODO: implement test
         }
     }
-
 }

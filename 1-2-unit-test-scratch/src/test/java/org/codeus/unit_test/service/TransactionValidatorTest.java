@@ -51,14 +51,7 @@ class TransactionValidatorTest {
          * <p>
          * This is a pure validator test - no mocks needed, just business logic validation.
          */
-        @Test
-        void validateWithdrawal_WithSufficientFunds_DoesNotThrowException() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("500");
-
-            // Act & Assert
-            assertDoesNotThrow(() -> validator.validateWithdrawal(activeAccount, amount));
-        }
+        // TODO: implement test
 
         /**
          * Demonstrates: Testing business rule violations with specific exception types
@@ -71,20 +64,11 @@ class TransactionValidatorTest {
          * Validator classes throw multiple exception types to distinguish different
          * failure reasons - this helps calling code handle errors appropriately.
          */
-        @Test
-        void validateWithdrawal_WithInsufficientFunds_ThrowsException() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("1500");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateWithdrawal(activeAccount, amount))
-                    .isInstanceOf(InsufficientFundsException.class);
-        }
+        // TODO: implement test
     }
 
     /**
      * Optional test cases for TransactionValidator - additional practice scenarios.
-     * Copy this entire class and paste it inside TransactionValidatorTest as a nested class named OptionalPart.
      */
     @Nested
     class OptionalPart {
@@ -99,13 +83,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateWithdrawal_WithBlockedAccount_ThrowsException() {
-            // Arrange
-            activeAccount.setStatus(AccountStatus.BLOCKED);
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateWithdrawal(activeAccount, amount))
-                    .isInstanceOf(AccountBlockedException.class);
+            // TODO: implement test
         }
 
         /**
@@ -118,13 +96,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateWithdrawal_WithClosedAccount_ThrowsException() {
-            // Arrange
-            activeAccount.setStatus(AccountStatus.CLOSED);
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateWithdrawal(activeAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -136,13 +108,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDeposit_WithBlockedAccount_ThrowsException() {
-            // Arrange
-            activeAccount.setStatus(AccountStatus.BLOCKED);
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDeposit(activeAccount, amount))
-                    .isInstanceOf(AccountBlockedException.class);
+            // TODO: implement test
         }
 
         /**
@@ -154,13 +120,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDeposit_WithClosedAccount_ThrowsException() {
-            // Arrange
-            activeAccount.setStatus(AccountStatus.CLOSED);
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDeposit(activeAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -173,13 +133,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_ToSameAccount_ThrowsException() {
-            // Arrange
-            Account sameAccount = activeAccount;
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(activeAccount, sameAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -191,18 +145,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithInsufficientFunds_ThrowsException() {
-            // Arrange
-            activeAccount.setBalance(new BigDecimal("500"));
-            Account toAccount = Account.builder()
-                    .id("acc-002")
-                    .status(AccountStatus.ACTIVE)
-                    .balance(new BigDecimal("100"))
-                    .build();
-            BigDecimal amount = new BigDecimal("1000");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(activeAccount, toAccount, amount))
-                    .isInstanceOf(InsufficientFundsException.class);
+            // TODO: implement test
         }
 
         /**
@@ -214,18 +157,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithBlockedFromAccount_ThrowsException() {
-            // Arrange
-            activeAccount.setStatus(AccountStatus.BLOCKED);
-            Account toAccount = Account.builder()
-                    .id("acc-002")
-                    .status(AccountStatus.ACTIVE)
-                    .balance(new BigDecimal("100"))
-                    .build();
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(activeAccount, toAccount, amount))
-                    .isInstanceOf(AccountBlockedException.class);
+            // TODO: implement test
         }
 
         /**
@@ -237,17 +169,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithBlockedToAccount_ThrowsException() {
-            // Arrange
-            Account toAccount = Account.builder()
-                    .id("acc-002")
-                    .status(AccountStatus.BLOCKED)
-                    .balance(new BigDecimal("100"))
-                    .build();
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(activeAccount, toAccount, amount))
-                    .isInstanceOf(AccountBlockedException.class);
+            // TODO: implement test
         }
 
         /**
@@ -259,17 +181,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithClosedToAccount_ThrowsException() {
-            // Arrange
-            Account toAccount = Account.builder()
-                    .id("acc-002")
-                    .status(AccountStatus.CLOSED)
-                    .balance(new BigDecimal("100"))
-                    .build();
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(activeAccount, toAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -283,14 +195,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDailyLimit_ExactlyAtLimit_ThrowsException() {
-            // Arrange
-            activeAccount.setDailyWithdrawalLimit(new BigDecimal("5000"));
-            BigDecimal alreadyWithdrawn = new BigDecimal("3000");
-            BigDecimal amount = new BigDecimal("2001");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDailyLimit(activeAccount, amount, alreadyWithdrawn))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -304,14 +209,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDailyLimit_SlightlyOverLimit_ThrowsException() {
-            // Arrange
-            activeAccount.setDailyWithdrawalLimit(new BigDecimal("5000"));
-            BigDecimal alreadyWithdrawn = new BigDecimal("4999");
-            BigDecimal amount = new BigDecimal("2");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDailyLimit(activeAccount, amount, alreadyWithdrawn))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -325,14 +223,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDailyLimit_FarOverLimit_ThrowsException() {
-            // Arrange
-            activeAccount.setDailyWithdrawalLimit(new BigDecimal("5000"));
-            BigDecimal alreadyWithdrawn = new BigDecimal("1000");
-            BigDecimal amount = new BigDecimal("10000");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDailyLimit(activeAccount, amount, alreadyWithdrawn))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -346,13 +237,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDailyLimit_JustUnderLimit_DoesNotThrowException() {
-            // Arrange
-            activeAccount.setDailyWithdrawalLimit(new BigDecimal("5000"));
-            BigDecimal alreadyWithdrawn = new BigDecimal("3000");
-            BigDecimal amount = new BigDecimal("1999");
-
-            // Act & Assert
-            assertDoesNotThrow(() -> validator.validateDailyLimit(activeAccount, amount, alreadyWithdrawn));
+            // TODO: implement test
         }
 
         /**
@@ -365,13 +250,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDailyLimit_WithNullLimit_DoesNotThrowException() {
-            // Arrange
-            activeAccount.setDailyWithdrawalLimit(null);
-            BigDecimal alreadyWithdrawn = new BigDecimal("10000");
-            BigDecimal amount = new BigDecimal("10000");
-
-            // Act & Assert
-            assertDoesNotThrow(() -> validator.validateDailyLimit(activeAccount, amount, alreadyWithdrawn));
+            // TODO: implement test
         }
 
         /**
@@ -383,13 +262,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateWithdrawal_WithNullAccount_ThrowsException() {
-            // Arrange
-            Account nullAccount = null;
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateWithdrawal(nullAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -401,12 +274,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateWithdrawal_WithNullAmount_ThrowsException() {
-            // Arrange
-            BigDecimal nullAmount = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateWithdrawal(activeAccount, nullAmount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -419,12 +287,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateWithdrawal_WithZeroAmount_ThrowsException() {
-            // Arrange
-            BigDecimal zeroAmount = BigDecimal.ZERO;
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateWithdrawal(activeAccount, zeroAmount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -436,12 +299,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateWithdrawal_WithNegativeAmount_ThrowsException() {
-            // Arrange
-            BigDecimal negativeAmount = new BigDecimal("-100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateWithdrawal(activeAccount, negativeAmount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -453,13 +311,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDeposit_WithNullAccount_ThrowsException() {
-            // Arrange
-            Account nullAccount = null;
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDeposit(nullAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -471,12 +323,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDeposit_WithNullAmount_ThrowsException() {
-            // Arrange
-            BigDecimal nullAmount = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDeposit(activeAccount, nullAmount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -488,12 +335,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDeposit_WithZeroAmount_ThrowsException() {
-            // Arrange
-            BigDecimal zeroAmount = BigDecimal.ZERO;
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDeposit(activeAccount, zeroAmount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -505,12 +347,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDeposit_WithNegativeAmount_ThrowsException() {
-            // Arrange
-            BigDecimal negativeAmount = new BigDecimal("-100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateDeposit(activeAccount, negativeAmount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -522,11 +359,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateDeposit_WithValidData_DoesNotThrowException() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("500");
-
-            // Act & Assert
-            assertDoesNotThrow(() -> validator.validateDeposit(activeAccount, amount));
+            // TODO: implement test
         }
 
         /**
@@ -538,16 +371,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithValidData_DoesNotThrowException() {
-            // Arrange
-            Account toAccount = Account.builder()
-                    .id("acc-002")
-                    .status(AccountStatus.ACTIVE)
-                    .balance(new BigDecimal("100"))
-                    .build();
-            BigDecimal amount = new BigDecimal("500");
-
-            // Act & Assert
-            assertDoesNotThrow(() -> validator.validateTransfer(activeAccount, toAccount, amount));
+            // TODO: implement test
         }
 
         /**
@@ -559,17 +383,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithNullFromAccount_ThrowsException() {
-            // Arrange
-            Account nullFromAccount = null;
-            Account toAccount = Account.builder()
-                    .id("acc-002")
-                    .status(AccountStatus.ACTIVE)
-                    .build();
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(nullFromAccount, toAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -581,13 +395,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithNullToAccount_ThrowsException() {
-            // Arrange
-            Account nullToAccount = null;
-            BigDecimal amount = new BigDecimal("100");
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(activeAccount, nullToAccount, amount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
 
         /**
@@ -599,16 +407,7 @@ class TransactionValidatorTest {
          */
         @Test
         void validateTransfer_WithNullAmount_ThrowsException() {
-            // Arrange
-            Account toAccount = Account.builder()
-                    .id("acc-002")
-                    .status(AccountStatus.ACTIVE)
-                    .build();
-            BigDecimal nullAmount = null;
-
-            // Act & Assert
-            assertThatThrownBy(() -> validator.validateTransfer(activeAccount, toAccount, nullAmount))
-                    .isInstanceOf(InvalidTransactionException.class);
+            // TODO: implement test
         }
     }
 }

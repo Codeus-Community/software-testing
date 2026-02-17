@@ -21,71 +21,47 @@ class FixedTimeProviderTest {
         fixedTime = LocalDateTime.of(2024, 1, 15, 10, 30, 0);
     }
 
-    /**
-     * Demonstrates: Why FixedTimeProvider is essential for deterministic tests
-     * FIRST principles: Repeatable (same input = same output, always)
-     *
-     * Tests that FixedTimeProvider returns the exact same time every call.
-     * This is critical for testing time-dependent logic:
-     *
-     * Problem with LocalDateTime.now():
-     * - Returns different value each millisecond
-     * - Tests become flaky (sometimes pass, sometimes fail)
-     * - Can't verify exact timestamps in assertions
-     *
-     * Solution with FixedTimeProvider:
-     * - Returns consistent, predictable time
-     * - Tests are deterministic and repeatable
-     * - Can assert exact values: account.getCreatedAt() == fixedTime
-     *
-     * This enables the "Timely" principle - code must be designed for testability.
-     */
-
     @Nested
-    class MainPart{
-        @Test
-        void now_ReturnsFixedTime() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
+    class MainPart {
 
-            // Act
-            LocalDateTime result = timeProvider.now();
-
-            // Assert
-            assertThat(result).isEqualTo(fixedTime);
-        }
+        /**
+         * Demonstrates: Why FixedTimeProvider is essential for deterministic tests
+         * FIRST principles: Repeatable (same input = same output, always)
+         * <p>
+         * Tests that FixedTimeProvider returns the exact same time every call.
+         * This is critical for testing time-dependent logic:
+         * <p>
+         * Problem with LocalDateTime.now():
+         * - Returns different value each millisecond
+         * - Tests become flaky (sometimes pass, sometimes fail)
+         * - Can't verify exact timestamps in assertions
+         * <p>
+         * Solution with FixedTimeProvider:
+         * - Returns consistent, predictable time
+         * - Tests are deterministic and repeatable
+         * - Can assert exact values: account.getCreatedAt() == fixedTime
+         * <p>
+         * This enables the "Timely" principle - code must be designed for testability.
+         */
+        // TODO: implement test
 
         /**
          * Demonstrates: Testing stateful behavior - object maintains and changes internal state
          * FIRST principles: Independent (test doesn't depend on external time source)
-         *
+         * <p>
          * Tests that FixedTimeProvider can update its internal time.
          * This allows simulating time progression in tests:
          * - Create account at time T1
          * - Set time to T2 (1 month later)
          * - Calculate interest for period T1 to T2
-         *
+         * <p>
          * Without this, you'd have to wait real time or use unreliable system clock manipulation.
          */
-        @Test
-        void setTime_ChangesReturnedTime() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime newTime = LocalDateTime.of(2024, 12, 31, 23, 59, 59);
-
-            // Act
-            timeProvider.setTime(newTime);
-            LocalDateTime result = timeProvider.now();
-
-            // Assert
-            assertThat(result).isEqualTo(newTime);
-            assertThat(result).isNotEqualTo(fixedTime);
-        }
+        // TODO: implement test
     }
 
     /**
      * Optional test cases for FixedTimeProvider - additional practice scenarios.
-     * Copy this entire class and paste it inside FixedTimeProviderTest as a nested class named OptionalPart.
      */
     @Nested
     class OptionalPart {
@@ -100,21 +76,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_MultipleTimes_UpdatesTimeCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime time1 = LocalDateTime.of(2024, 1, 1, 10, 0);
-            LocalDateTime time2 = LocalDateTime.of(2024, 6, 15, 14, 30);
-            LocalDateTime time3 = LocalDateTime.of(2024, 12, 31, 23, 59);
-
-            // Act & Assert
-            timeProvider.setTime(time1);
-            assertThat(timeProvider.now()).isEqualTo(time1);
-
-            timeProvider.setTime(time2);
-            assertThat(timeProvider.now()).isEqualTo(time2);
-
-            timeProvider.setTime(time3);
-            assertThat(timeProvider.now()).isEqualTo(time3);
+            // TODO: implement test
         }
 
         /**
@@ -127,18 +89,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void now_CalledMultipleTimes_ReturnsSameValue() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-
-            // Act
-            LocalDateTime firstCall = timeProvider.now();
-            LocalDateTime secondCall = timeProvider.now();
-            LocalDateTime thirdCall = timeProvider.now();
-
-            // Assert
-            assertThat(firstCall).isEqualTo(secondCall);
-            assertThat(secondCall).isEqualTo(thirdCall);
-            assertThat(firstCall).isEqualTo(fixedTime);
+            // TODO: implement test
         }
 
         /**
@@ -154,21 +105,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_AdvancingTime_SimulatesTimeProgression() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime after30Days = fixedTime.plusDays(30);
-            LocalDateTime after1Year = fixedTime.plusYears(1);
-
-            // Act & Assert
-            assertThat(timeProvider.now()).isEqualTo(fixedTime);
-
-            timeProvider.setTime(after30Days);
-            assertThat(timeProvider.now()).isEqualTo(after30Days);
-            assertThat(timeProvider.now()).isAfter(fixedTime);
-
-            timeProvider.setTime(after1Year);
-            assertThat(timeProvider.now()).isEqualTo(after1Year);
-            assertThat(timeProvider.now()).isAfter(after30Days);
+            // TODO: implement test
         }
 
         /**
@@ -183,16 +120,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_BackwardTime_UpdatesTimeCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime pastTime = fixedTime.minusDays(10);
-
-            // Act
-            timeProvider.setTime(pastTime);
-
-            // Assert
-            assertThat(timeProvider.now()).isEqualTo(pastTime);
-            assertThat(timeProvider.now()).isBefore(fixedTime);
+            // TODO: implement test
         }
 
         /**
@@ -205,15 +133,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_WithEpochTime_WorksCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime epoch = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
-
-            // Act
-            timeProvider.setTime(epoch);
-
-            // Assert
-            assertThat(timeProvider.now()).isEqualTo(epoch);
+            // TODO: implement test
         }
 
         /**
@@ -226,15 +146,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_WithFarFutureTime_WorksCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime farFuture = LocalDateTime.of(2999, 12, 31, 23, 59, 59);
-
-            // Act
-            timeProvider.setTime(farFuture);
-
-            // Assert
-            assertThat(timeProvider.now()).isEqualTo(farFuture);
+            // TODO: implement test
         }
 
         /**
@@ -247,18 +159,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void constructor_WithDifferentTimes_CreatesIndependentProviders() {
-            // Arrange
-            LocalDateTime time1 = LocalDateTime.of(2024, 1, 1, 0, 0);
-            LocalDateTime time2 = LocalDateTime.of(2024, 12, 31, 23, 59);
-
-            // Act
-            FixedTimeProvider provider1 = new FixedTimeProvider(time1);
-            FixedTimeProvider provider2 = new FixedTimeProvider(time2);
-
-            // Assert
-            assertThat(provider1.now()).isEqualTo(time1);
-            assertThat(provider2.now()).isEqualTo(time2);
-            assertThat(provider1.now()).isNotEqualTo(provider2.now());
+            // TODO: implement test
         }
 
         /**
@@ -271,16 +172,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void now_MaintainsNanosecondPrecision() {
-            // Arrange
-            LocalDateTime preciseTime = LocalDateTime.of(2024, 1, 15, 10, 30, 45, 123456789);
-            FixedTimeProvider timeProvider = new FixedTimeProvider(preciseTime);
-
-            // Act
-            LocalDateTime result = timeProvider.now();
-
-            // Assert
-            assertThat(result).isEqualTo(preciseTime);
-            assertThat(result.getNano()).isEqualTo(123456789);
+            // TODO: implement test
         }
 
         /**
@@ -293,18 +185,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_ToMidnight_WorksCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime midnight = LocalDateTime.of(2024, 1, 15, 0, 0, 0);
-
-            // Act
-            timeProvider.setTime(midnight);
-
-            // Assert
-            assertThat(timeProvider.now()).isEqualTo(midnight);
-            assertThat(timeProvider.now().getHour()).isEqualTo(0);
-            assertThat(timeProvider.now().getMinute()).isEqualTo(0);
-            assertThat(timeProvider.now().getSecond()).isEqualTo(0);
+            // TODO: implement test
         }
 
         /**
@@ -317,18 +198,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_ToEndOfDay_WorksCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime endOfDay = LocalDateTime.of(2024, 1, 15, 23, 59, 59);
-
-            // Act
-            timeProvider.setTime(endOfDay);
-
-            // Assert
-            assertThat(timeProvider.now()).isEqualTo(endOfDay);
-            assertThat(timeProvider.now().getHour()).isEqualTo(23);
-            assertThat(timeProvider.now().getMinute()).isEqualTo(59);
-            assertThat(timeProvider.now().getSecond()).isEqualTo(59);
+            // TODO: implement test
         }
 
         /**
@@ -341,18 +211,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_ToYearBoundary_WorksCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime newYear = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
-
-            // Act
-            timeProvider.setTime(newYear);
-
-            // Assert
-            assertThat(timeProvider.now()).isEqualTo(newYear);
-            assertThat(timeProvider.now().getYear()).isEqualTo(2025);
-            assertThat(timeProvider.now().getMonth().getValue()).isEqualTo(1);
-            assertThat(timeProvider.now().getDayOfMonth()).isEqualTo(1);
+            // TODO: implement test
         }
 
         /**
@@ -365,17 +224,7 @@ class FixedTimeProviderTest {
          */
         @Test
         void setTime_ToLeapYearDate_WorksCorrectly() {
-            // Arrange
-            FixedTimeProvider timeProvider = new FixedTimeProvider(fixedTime);
-            LocalDateTime leapDay = LocalDateTime.of(2024, 2, 29, 12, 0, 0);
-
-            // Act
-            timeProvider.setTime(leapDay);
-
-            // Assert
-            assertThat(timeProvider.now()).isEqualTo(leapDay);
-            assertThat(timeProvider.now().getMonth().getValue()).isEqualTo(2);
-            assertThat(timeProvider.now().getDayOfMonth()).isEqualTo(29);
+            // TODO: implement test
         }
     }
 }
