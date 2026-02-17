@@ -84,6 +84,12 @@ class InterestCalculatorTest {
             assertThat(interest).isEqualByComparingTo(BigDecimal.ZERO);
         }
 
+    /**
+     * Optional test cases for InterestCalculator - additional practice scenarios.
+     */
+    @Nested
+    class OptionalPart {
+
         /**
          * Demonstrates: Parametrized testing with @MethodSource for data-driven tests
          * FIRST principles: Fast (no I/O), Repeatable (same inputs always produce same outputs)
@@ -125,14 +131,6 @@ class InterestCalculatorTest {
         }
 
     }
-
-    /**
-     * Optional test cases for InterestCalculator - additional practice scenarios.
-     * Copy this entire class and paste it inside InterestCalculatorTest as a nested class named OptionalPart.
-     */
-    @Nested
-    class OptionalPart {
-
         /**
          * Demonstrates: Testing with minimal time period (1 day)
          * FIRST principles: Fast (pure calculation), Repeatable (deterministic)

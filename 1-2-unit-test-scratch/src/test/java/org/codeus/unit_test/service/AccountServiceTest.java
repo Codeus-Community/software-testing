@@ -225,7 +225,6 @@ class AccountServiceTest {
 
     /**
      * Optional test cases for AccountService - additional practice scenarios.
-     * Copy this entire class and paste it inside AccountServiceTest as a nested class named OptionalPart.
      */
     @Nested
     class OptionalPart {

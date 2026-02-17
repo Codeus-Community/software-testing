@@ -39,6 +39,9 @@ class TransactionValidatorTest {
                 .build();
     }
 
+    /**
+     * Optional test cases for TransactionValidatorTest - additional practice scenarios.
+     */
     @Nested
     class MainPart {
         /**

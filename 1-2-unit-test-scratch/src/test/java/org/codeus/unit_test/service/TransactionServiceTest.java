@@ -125,6 +125,66 @@ class TransactionServiceTest {
         }
 
         /**
+         * Demonstrates: Negative verification with never() - ensuring operations DON'T happen
+         * FIRST principles: Independent (isolated fraud scenario), Repeatable (deterministic fraud check)
+         * <p>
+         * Tests that when fraud is detected, no actual transfer occurs.
+         * Uses never() to verify critical operations are skipped:
+         * - Accounts are NOT saved
+         * - Transaction is NOT recorded
+         * - Notifications are NOT sent
+         * <p>
+         * This is crucial for security - fraudulent operations must be completely blocked.
+         */
+        @Test
+        void transfer_WithSuspiciousActivity_DoesNotTransfer() {
+            // Arrange
+            BigDecimal amount = new BigDecimal("10000");
+
+            when(accountRepository.findById("acc-001")).thenReturn(Optional.of(fromAccount));
+            when(accountRepository.findById("acc-002")).thenReturn(Optional.of(toAccount));
+            when(fraudDetectionService.isSuspiciousTransfer(any(), any(), any())).thenReturn(true);
+
+            BigDecimal originalFromBalance = fromAccount.getBalance();
+            BigDecimal originalToBalance = toAccount.getBalance();
+
+            // Act & Assert
+            assertThatThrownBy(() -> transactionService.transfer("acc-001", "acc-002", amount))
+                    .isInstanceOf(FraudDetectedException.class);
+
+            verify(fraudDetectionService).reportSuspiciousActivity(any(Transaction.class));
+            verify(accountRepository, never()).save(any(Account.class));
+            verify(transactionRepository, never()).save(any(Transaction.class));
+            verify(notificationService, never()).sendTransactionNotification(anyString(), any());
+
+            assertThat(fromAccount.getBalance()).isEqualByComparingTo(originalFromBalance);
+            assertThat(toAccount.getBalance()).isEqualByComparingTo(originalToBalance);
+        }
+    }
+
+    /**
+     * Optional test cases for TransactionService - additional practice scenarios.
+     */
+    @Nested
+    class OptionalPart {
+
+        private ExchangeRateService exchangeRateService;
+
+        @BeforeEach
+        void setUpOptional() {
+            exchangeRateService = mock(ExchangeRateService.class);
+            transactionService = new TransactionService(
+                    accountRepository,
+                    transactionRepository,
+                    transactionValidator,
+                    fraudDetectionService,
+                    notificationService,
+                    exchangeRateService,
+                    timeProvider
+            );
+        }
+
+        /**
          * Demonstrates: InOrder verification - ensuring operations happen in correct sequence
          * FIRST principles: Fast (no I/O), Self-validating (clear order verification)
          * <p>
@@ -165,43 +225,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Negative verification with never() - ensuring operations DON'T happen
-         * FIRST principles: Independent (isolated fraud scenario), Repeatable (deterministic fraud check)
-         * <p>
-         * Tests that when fraud is detected, no actual transfer occurs.
-         * Uses never() to verify critical operations are skipped:
-         * - Accounts are NOT saved
-         * - Transaction is NOT recorded
-         * - Notifications are NOT sent
-         * <p>
-         * This is crucial for security - fraudulent operations must be completely blocked.
-         */
-        @Test
-        void transfer_WithSuspiciousActivity_DoesNotTransfer() {
-            // Arrange
-            BigDecimal amount = new BigDecimal("10000");
-
-            when(accountRepository.findById("acc-001")).thenReturn(Optional.of(fromAccount));
-            when(accountRepository.findById("acc-002")).thenReturn(Optional.of(toAccount));
-            when(fraudDetectionService.isSuspiciousTransfer(any(), any(), any())).thenReturn(true);
-
-            BigDecimal originalFromBalance = fromAccount.getBalance();
-            BigDecimal originalToBalance = toAccount.getBalance();
-
-            // Act & Assert
-            assertThatThrownBy(() -> transactionService.transfer("acc-001", "acc-002", amount))
-                    .isInstanceOf(FraudDetectedException.class);
-
-            verify(fraudDetectionService).reportSuspiciousActivity(any(Transaction.class));
-            verify(accountRepository, never()).save(any(Account.class));
-            verify(transactionRepository, never()).save(any(Transaction.class));
-            verify(notificationService, never()).sendTransactionNotification(anyString(), any());
-
-            assertThat(fromAccount.getBalance()).isEqualByComparingTo(originalFromBalance);
-            assertThat(toAccount.getBalance()).isEqualByComparingTo(originalToBalance);
-        }
-
-        /**
          * Demonstrates: Integration of multiple services, conditional notifications
          * FIRST principles: Fast (mocked time and repositories)
          * <p>
@@ -232,30 +255,6 @@ class TransactionServiceTest {
 
             // Assert - 7500 + 1600 = 9100 > 9000 (90% of 10000), triggers warning
             verify(notificationService).sendDailyLimitWarning("client-001", "acc-001");
-        }
-    }
-
-    /**
-     * Optional test cases for TransactionService - additional practice scenarios.
-     * Copy this entire class and paste it inside TransactionServiceTest as a nested class named OptionalPart.
-     */
-    @Nested
-    class OptionalPart {
-
-        private ExchangeRateService exchangeRateService;
-
-        @BeforeEach
-        void setUpOptional() {
-            exchangeRateService = mock(ExchangeRateService.class);
-            transactionService = new TransactionService(
-                    accountRepository,
-                    transactionRepository,
-                    transactionValidator,
-                    fraudDetectionService,
-                    notificationService,
-                    exchangeRateService,
-                    timeProvider
-            );
         }
 
         /**

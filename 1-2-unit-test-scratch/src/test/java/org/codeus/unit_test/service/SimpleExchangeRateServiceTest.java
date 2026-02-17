@@ -114,7 +114,6 @@ class SimpleExchangeRateServiceTest {
 
     /**
      * Optional test cases for SimpleExchangeRateService - additional practice scenarios.
-     * Copy this entire class and paste it inside SimpleExchangeRateServiceTest as a nested class named OptionalPart.
      */
     @Nested
     class OptionalPart {

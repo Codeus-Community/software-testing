@@ -85,7 +85,6 @@ class FixedTimeProviderTest {
 
     /**
      * Optional test cases for FixedTimeProvider - additional practice scenarios.
-     * Copy this entire class and paste it inside FixedTimeProviderTest as a nested class named OptionalPart.
      */
     @Nested
     class OptionalPart {
