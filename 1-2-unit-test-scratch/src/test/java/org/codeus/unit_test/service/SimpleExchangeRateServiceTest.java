@@ -39,8 +39,12 @@ class SimpleExchangeRateServiceTest {
         exchangeRateService = new SimpleExchangeRateService(rateSource);
     }
 
+    /**
+     * Optional test cases for SimpleExchangeRateService - additional practice scenarios.
+     */
     @Nested
-    class MainPart {
+    class OptionalPart {
+
         /**
          * Demonstrates: Identity operation testing (edge case where input equals output)
          * FIRST principles: Fast (no external calls), Independent (no shared state)
@@ -110,13 +114,6 @@ class SimpleExchangeRateServiceTest {
             // Assert
             verify(mockRateSource).loadRates();
         }
-    }
-
-    /**
-     * Optional test cases for SimpleExchangeRateService - additional practice scenarios.
-     */
-    @Nested
-    class OptionalPart {
 
         /**
          * Demonstrates: Currency conversion between different pairs

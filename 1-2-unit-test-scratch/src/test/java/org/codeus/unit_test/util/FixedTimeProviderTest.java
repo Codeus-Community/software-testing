@@ -24,25 +24,30 @@ class FixedTimeProviderTest {
     /**
      * Demonstrates: Why FixedTimeProvider is essential for deterministic tests
      * FIRST principles: Repeatable (same input = same output, always)
-     *
+     * <p>
      * Tests that FixedTimeProvider returns the exact same time every call.
      * This is critical for testing time-dependent logic:
-     *
+     * <p>
      * Problem with LocalDateTime.now():
      * - Returns different value each millisecond
      * - Tests become flaky (sometimes pass, sometimes fail)
      * - Can't verify exact timestamps in assertions
-     *
+     * <p>
      * Solution with FixedTimeProvider:
      * - Returns consistent, predictable time
      * - Tests are deterministic and repeatable
      * - Can assert exact values: account.getCreatedAt() == fixedTime
-     *
+     * <p>
      * This enables the "Timely" principle - code must be designed for testability.
      */
 
     @Nested
-    class MainPart{
+    class MainPart {
+
+        /**
+         * Tests that FixedTimeProvider returns the exact same time every call.
+         * This is critical for testing time-dependent logic:
+         */
         @Test
         void now_ReturnsFixedTime() {
             // Arrange
@@ -58,13 +63,13 @@ class FixedTimeProviderTest {
         /**
          * Demonstrates: Testing stateful behavior - object maintains and changes internal state
          * FIRST principles: Independent (test doesn't depend on external time source)
-         *
+         * <p>
          * Tests that FixedTimeProvider can update its internal time.
          * This allows simulating time progression in tests:
          * - Create account at time T1
          * - Set time to T2 (1 month later)
          * - Calculate interest for period T1 to T2
-         *
+         * <p>
          * Without this, you'd have to wait real time or use unreliable system clock manipulation.
          */
         @Test
@@ -97,6 +102,7 @@ class FixedTimeProviderTest {
          * Verifies stateful behavior - object maintains current time value.
          * This simulates time progression in tests: T1 -> T2 -> T3
          */
+
         @Test
         void setTime_MultipleTimes_UpdatesTimeCorrectly() {
             // Arrange
