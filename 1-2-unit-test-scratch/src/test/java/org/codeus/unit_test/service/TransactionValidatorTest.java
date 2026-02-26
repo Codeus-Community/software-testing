@@ -42,27 +42,16 @@ class TransactionValidatorTest {
     @Nested
     class MainPart {
         /**
-         * Demonstrates: Validating happy path with assertDoesNotThrow()
-         * FIRST principles: Fast (no dependencies), Independent (pure validation)
-         * <p>
          * Tests that valid withdrawal passes validation without throwing exceptions.
          * Uses assertDoesNotThrow() to verify no exceptions occur - different from
          * verify() used in mocked tests or assertThat() used for value assertions.
-         * <p>
-         * This is a pure validator test - no mocks needed, just business logic validation.
          */
         // TODO: implement test
 
         /**
-         * Demonstrates: Testing business rule violations with specific exception types
-         * FIRST principles: Self-validating (clear exception expected)
-         * <p>
          * Tests that insufficient funds are properly detected and rejected.
          * Shows InsufficientFundsException - a domain-specific exception type
          * that represents a business rule violation (not a technical error).
-         * <p>
-         * Validator classes throw multiple exception types to distinguish different
-         * failure reasons - this helps calling code handle errors appropriately.
          */
         // TODO: implement test
     }
@@ -74,9 +63,6 @@ class TransactionValidatorTest {
     class OptionalPart {
 
         /**
-         * Demonstrates: Validation for all account statuses
-         * FIRST principles: Fast (no dependencies), Repeatable
-         * <p>
          * Tests that BLOCKED accounts are rejected for withdrawal.
          * Business rule: blocked accounts cannot perform any transactions.
          * This is a security/administrative control.
@@ -87,9 +73,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Validation for CLOSED account status
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that CLOSED accounts are rejected for withdrawal.
          * Business rule: closed accounts cannot perform transactions.
          * Different from blocked - closed is permanent, blocked is temporary.
@@ -100,9 +83,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Deposit validation with blocked account
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that BLOCKED accounts cannot receive deposits.
          * Blocked accounts are frozen - no incoming or outgoing transactions.
          */
@@ -112,9 +92,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Deposit validation with closed account
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that CLOSED accounts cannot receive deposits.
          * Once closed, accounts shouldn't accept any transactions.
          */
@@ -124,9 +101,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Transfer validation - same account check
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that transferring to the same account is rejected.
          * Business rule: cannot transfer money to yourself.
          * This prevents pointless transactions and potential fee exploitation.
@@ -137,9 +111,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Transfer validation with insufficient funds
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that transfer with insufficient balance is rejected.
          * Similar to withdrawal validation but for transfer operation.
          */
@@ -149,9 +120,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Transfer validation with blocked source account
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that transfers from blocked accounts are rejected.
          * Source account must be active to initiate transfer.
          */
@@ -161,9 +129,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Transfer validation with blocked destination account
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that transfers to blocked accounts are rejected.
          * Destination account must also be active to receive transfer.
          */
@@ -173,9 +138,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Transfer validation with closed destination account
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that transfers to closed accounts are rejected.
          * Cannot send money to accounts that no longer exist (are closed).
          */
@@ -185,9 +147,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Daily limit validation - exact limit boundary
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that withdrawal exceeding daily limit is rejected.
          * Boundary test: limit is exclusive - total must be <= limit.
          * alreadyWithdrawn + amount > limit → rejected
@@ -199,9 +158,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Daily limit validation - slightly over limit
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that withdrawal slightly exceeding limit is rejected.
          * alreadyWithdrawn: 4999, amount: 2, limit: 5000
          * Total: 5001 > 5000 → rejected
@@ -213,9 +169,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Daily limit validation - far over limit
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that withdrawal far exceeding limit is rejected.
          * alreadyWithdrawn: 1000, amount: 10000, limit: 5000
          * Total: 11000 >> 5000 → rejected
@@ -227,9 +180,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Daily limit validation - just under limit (valid)
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that withdrawal just under limit is allowed.
          * alreadyWithdrawn: 3000, amount: 1999, limit: 5000
          * Total: 4999 < 5000 → allowed
@@ -241,9 +191,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Daily limit validation with null limit (no restriction)
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that null daily limit means no restriction.
          * Some accounts might not have daily limits set.
          * Null limit should allow any withdrawal (subject to balance).
@@ -254,9 +201,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Null account validation in validateWithdrawal
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null account is rejected before withdrawal validation.
          * Defensive programming: check null before accessing object properties.
          */
@@ -266,9 +210,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Null amount validation in validateWithdrawal
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that null withdrawal amount is rejected.
          * Amount is required for transaction - null would cause errors.
          */
@@ -278,9 +219,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Zero amount validation
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that zero withdrawal amount is rejected.
          * Business rule: amount must be positive (> 0).
          * Zero transactions are meaningless and should be blocked.
@@ -291,9 +229,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Negative amount validation
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that negative withdrawal amount is rejected.
          * Negative withdrawal doesn't make sense - use deposit instead.
          */
@@ -303,9 +238,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Null account validation in validateDeposit
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null account is rejected for deposit.
          * Same validation as withdrawal - account must exist.
          */
@@ -315,9 +247,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Null amount validation in validateDeposit
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that null deposit amount is rejected.
          * Deposit also requires valid amount - null not allowed.
          */
@@ -327,9 +256,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Zero deposit amount validation
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that zero deposit amount is rejected.
          * Like withdrawal, deposit amount must be positive (> 0).
          */
@@ -339,9 +265,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Negative deposit amount validation
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that negative deposit amount is rejected.
          * Negative deposit doesn't make sense - use withdrawal instead.
          */
@@ -351,9 +274,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Valid deposit passes all validations
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that valid deposit with active account and positive amount succeeds.
          * Happy path test for deposit validation.
          */
@@ -363,9 +283,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Valid transfer passes all validations
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that valid transfer between two active accounts succeeds.
          * Happy path test for transfer validation.
          */
@@ -375,9 +292,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Null from-account validation in validateTransfer
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null source account is rejected in transfer.
          * Both accounts must exist for transfer validation.
          */
@@ -387,9 +301,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Null to-account validation in validateTransfer
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that null destination account is rejected in transfer.
          * Complements null source account test.
          */
@@ -399,9 +310,6 @@ class TransactionValidatorTest {
         }
 
         /**
-         * Demonstrates: Null amount validation in validateTransfer
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null transfer amount is rejected.
          * Transfer requires valid amount like deposit/withdrawal.
          */

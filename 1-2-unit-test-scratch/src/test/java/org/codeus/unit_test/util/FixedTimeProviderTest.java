@@ -25,37 +25,17 @@ class FixedTimeProviderTest {
     class MainPart {
 
         /**
-         * Demonstrates: Why FixedTimeProvider is essential for deterministic tests
-         * FIRST principles: Repeatable (same input = same output, always)
-         * <p>
          * Tests that FixedTimeProvider returns the exact same time every call.
          * This is critical for testing time-dependent logic:
-         * <p>
-         * Problem with LocalDateTime.now():
-         * - Returns different value each millisecond
-         * - Tests become flaky (sometimes pass, sometimes fail)
-         * - Can't verify exact timestamps in assertions
-         * <p>
-         * Solution with FixedTimeProvider:
-         * - Returns consistent, predictable time
-         * - Tests are deterministic and repeatable
-         * - Can assert exact values: account.getCreatedAt() == fixedTime
-         * <p>
-         * This enables the "Timely" principle - code must be designed for testability.
          */
         // TODO: implement test
 
         /**
-         * Demonstrates: Testing stateful behavior - object maintains and changes internal state
-         * FIRST principles: Independent (test doesn't depend on external time source)
-         * <p>
          * Tests that FixedTimeProvider can update its internal time.
          * This allows simulating time progression in tests:
          * - Create account at time T1
          * - Set time to T2 (1 month later)
          * - Calculate interest for period T1 to T2
-         * <p>
-         * Without this, you'd have to wait real time or use unreliable system clock manipulation.
          */
         // TODO: implement test
     }
@@ -67,9 +47,6 @@ class FixedTimeProviderTest {
     class OptionalPart {
 
         /**
-         * Demonstrates: Multiple setTime calls in sequence
-         * FIRST principles: Fast (pure state manipulation), Repeatable
-         * <p>
          * Tests that FixedTimeProvider correctly updates time on each setTime call.
          * Verifies stateful behavior - object maintains current time value.
          * This simulates time progression in tests: T1 -> T2 -> T3
@@ -80,9 +57,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Consistency verification - now() returns same value
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that multiple calls to now() return exactly the same time.
          * This is the core property that makes FixedTimeProvider useful for testing.
          * Unlike LocalDateTime.now() which changes every millisecond.
@@ -93,9 +67,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Testing time advancement simulation
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests simulating forward time progression using setTime.
          * Useful for testing scenarios like:
          * - Interest accrual over time
@@ -109,9 +80,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Testing backward time movement (edge case)
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that time can be moved backward.
          * While unusual, this is valid for testing scenarios like:
          * - Daylight saving time changes
@@ -124,9 +92,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Edge case - setting time to epoch (very old date)
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that FixedTimeProvider handles very old dates correctly.
          * Unix epoch: 1970-01-01 00:00:00
          * This ensures no assumptions about minimum date values.
@@ -137,9 +102,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Edge case - setting time to far future
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that FixedTimeProvider handles far future dates correctly.
          * Year 2999 - tests upper boundary of date handling.
          * Useful for testing long-term projections or calculations.
@@ -150,9 +112,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Construction with different initial times
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that FixedTimeProvider can be initialized with any time.
          * Verifies constructor properly sets initial state.
          * Different instances can have different times.
@@ -163,9 +122,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Time precision with nanoseconds
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that FixedTimeProvider maintains full LocalDateTime precision.
          * LocalDateTime supports nanosecond precision.
          * Important for testing financial timestamps where precision matters.
@@ -176,9 +132,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Midnight boundary test
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests setting time to exact midnight (00:00:00).
          * Midnight is a common boundary in date calculations.
          * Important for daily interest calculations, daily limits, etc.
@@ -189,9 +142,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: End of day boundary test
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests setting time to last moment of day (23:59:59).
          * Another important boundary for daily calculations.
          * Complements midnight test - tests both day boundaries.
@@ -202,9 +152,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Year boundary test (New Year)
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests setting time to year transition moment.
          * Tests edge case at year boundary: 2024 -> 2025
          * Important for annual calculations, year-end processing.
@@ -215,9 +162,6 @@ class FixedTimeProviderTest {
         }
 
         /**
-         * Demonstrates: Leap year date handling
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that FixedTimeProvider handles leap year dates correctly.
          * February 29, 2024 is valid (2024 is leap year).
          * Important edge case for date-based calculations.

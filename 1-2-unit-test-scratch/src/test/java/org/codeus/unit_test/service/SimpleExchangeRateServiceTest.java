@@ -39,62 +39,51 @@ class SimpleExchangeRateServiceTest {
         exchangeRateService = new SimpleExchangeRateService(rateSource);
     }
 
-    @Nested
-    class MainPart {
-        /**
-         * Demonstrates: Identity operation testing (edge case where input equals output)
-         * FIRST principles: Fast (no external calls), Independent (no shared state)
-         * <p>
-         * Tests the special case where source and target currencies are the same.
-         * Exchange rate should always be 1.0 for same currency conversion.
-         * This is a mathematical identity property: X -> X = 1.
-         */
-        // TODO: implement test
-
-        /**
-         * Demonstrates: Testing stateful services (service that maintains internal state)
-         * FIRST principles: Independent (test doesn't affect others), Self-validating (clear assertion)
-         * <p>
-         * Tests that the service can update its internal state (exchange rates).
-         * Verifies that setExchangeRate modifies the rate and getExchangeRate retrieves it correctly.
-         * Stateful testing ensures the service maintains data correctly between operations.
-         */
-        // TODO: implement test
-
-        /**
-         * Demonstrates: Test isolation and repeatability through state cleanup
-         * FIRST principles: Independent (tests don't interfere with each other),
-         * Repeatable (can run in any order)
-         * <p>
-         * Tests that clearRates removes all stored rates, ensuring clean state.
-         * This is crucial for test independence - each test should be able to run in isolation.
-         * After clearing, attempting to get a rate should throw an exception.
-         */
-        // TODO: implement test
-
-        /**
-         * Demonstrates: Verifying constructor behavior using manual mock creation with mock()
-         * FIRST principles: Fast (no I/O), Independent (isolated constructor test)
-         * <p>
-         * Tests that SimpleExchangeRateService calls loadRates() on the provided RateSource
-         * during construction. This verifies the dependency is used correctly at initialization.
-         * <p>
-         * Uses manual mock creation with mock() instead of @Mock annotation to show
-         * an alternative mocking approach when mock is only needed within a single test.
-         */
-        // TODO: implement test
-    }
-
     /**
      * Optional test cases for SimpleExchangeRateService - additional practice scenarios.
      */
     @Nested
     class OptionalPart {
+        /**
+         * Tests the special case where source and target currencies are the same.
+         * Exchange rate should always be 1.0 for same currency conversion.
+         * This is a mathematical identity property: X -> X = 1.
+         */
+        @Test
+        void getExchangeRate_ForSameCurrency_ReturnsOne() {
+            // TODO: implement test
+        }
 
         /**
-         * Demonstrates: Currency conversion between different pairs
-         * FIRST principles: Fast (no external API calls), Repeatable (fixed rates)
-         * <p>
+         * Tests that the service can update its internal state (exchange rates).
+         * Verifies that setExchangeRate modifies the rate and getExchangeRate retrieves it correctly.
+         * Stateful testing ensures the service maintains data correctly between operations.
+         */
+        @Test
+        void setExchangeRate_UpdatesRate() {
+            // TODO: implement test
+        }
+
+        /**
+         * Tests that clearRates removes all stored rates, ensuring clean state.
+         * This is crucial for test independence - each test should be able to run in isolation.
+         * After clearing, attempting to get a rate should throw an exception.
+         */
+        @Test
+        void clearRates_RemovesAllRates() {
+            // TODO: implement test
+        }
+
+        /**
+         * Tests that SimpleExchangeRateService calls loadRates() on the provided RateSource
+         * during construction. This verifies the dependency is used correctly at initialization.
+         */
+        @Test
+        void constructor_CallsLoadRatesOnProvidedRateSource() {
+            // TODO: implement test
+        }
+
+        /**
          * Tests direct currency conversion USD to EUR using loaded rates.
          * Uses the rate from file: USD_EUR=0.92
          * 100 USD * 0.92 = 92.00 EUR
@@ -105,9 +94,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Currency conversion with different currency pair
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests conversion USD to UAH using loaded rates.
          * Uses the rate from file: USD_UAH=41.50
          * 100 USD * 41.50 = 4150.00 UAH
@@ -118,9 +104,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Currency conversion EUR to UAH
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests conversion from EUR to UAH.
          * Uses the rate from file: EUR_UAH=45.00
          * 100 EUR * 45.00 = 4500.00 UAH
@@ -131,9 +114,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Reverse rate calculation (implicit inverse)
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests conversion EUR to USD using reverse rate calculation.
          * File has USD_EUR=0.92, so EUR_USD = 1/0.92 = 1.087 (approximately)
          * Service should automatically calculate reverse rate when needed.
@@ -145,9 +125,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Reverse rate calculation UAH to USD
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests reverse conversion UAH to USD.
          * File has USD_UAH=41.50, so UAH_USD = 1/41.50 = 0.024096
          * 100 UAH * (1/41.50) = 2.41 USD
@@ -158,9 +135,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Rate consistency verification (mathematical property)
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that forward and reverse rates are mathematical inverses.
          * Property: rate(A->B) * rate(B->A) should equal 1.0
          * This verifies the reverse rate calculation is correct.
@@ -171,9 +145,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null amount parameter validation
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null amount is rejected in convert operation.
          * Amount is required for conversion - null would cause NullPointerException.
          */
@@ -183,9 +154,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Negative amount validation
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that negative amounts are rejected in conversion.
          * Business rule: cannot convert negative amounts (no negative money).
          */
@@ -195,9 +163,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Zero amount conversion (edge case)
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that converting zero amount returns zero.
          * Mathematical property: 0 * rate = 0
          * Zero is non-negative, so it's valid input.
@@ -208,9 +173,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null currency parameter validation in setExchangeRate
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null source currency is rejected when setting rate.
          * All parameters must be non-null for rate setting operation.
          */
@@ -220,9 +182,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null target currency validation in setExchangeRate
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that null target currency is rejected when setting rate.
          * Complements null source currency test.
          */
@@ -232,9 +191,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null rate validation in setExchangeRate
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null rate value is rejected when setting rate.
          * Rate is the core data being set - cannot be null.
          */
@@ -244,9 +200,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Negative rate validation
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that negative exchange rates are rejected.
          * Business rule: exchange rates must be positive (no negative money value).
          */
@@ -256,9 +209,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Zero rate validation
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that zero exchange rates are rejected.
          * Business rule: rates must be positive - zero rate is invalid
          * (would mean target currency has no value).
@@ -269,9 +219,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null currency validation in getExchangeRate
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that null source currency is rejected when getting rate.
          * Both currencies must be specified to look up rate.
          */
@@ -281,9 +228,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null target currency validation in getExchangeRate
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null target currency is rejected when getting rate.
          * Complements null source currency test for getExchangeRate.
          */
@@ -293,9 +237,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Missing rate exception handling
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that requesting unavailable rate throws exception.
          * After clearRates(), no rates exist - service should fail gracefully.
          * This is different from reverse rate calculation - no rate exists at all.
@@ -306,9 +247,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Currency conversion chain scenario
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests converting USD -> EUR -> UAH and comparing with direct USD -> UAH.
          * This verifies rate consistency across currency chain.
          * Due to rounding, chained conversion might differ slightly from direct.
@@ -323,9 +261,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null currency validation in convert
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that null source currency is rejected in convert operation.
          * Convert internally calls getExchangeRate which validates currencies.
          */
@@ -335,9 +270,6 @@ class SimpleExchangeRateServiceTest {
         }
 
         /**
-         * Demonstrates: Null target currency validation in convert
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that null target currency is rejected in convert operation.
          * Complements null source currency test for convert.
          */

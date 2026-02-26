@@ -5,6 +5,12 @@ A simple banking system that demonstrates core financial operations:
 account management, deposits, withdrawals, transfers, interest calculation,
 and fraud detection. Your task is to write unit tests for this system.
 
+## Class Diagram
+
+![Class Diagram](docs/class-diagram.png)
+
+> `→` solid line — actively calls methods at runtime
+
 ## System Components
 
 ### Models
@@ -28,7 +34,7 @@ and fraud detection. Your task is to write unit tests for this system.
 
 ## Test Structure
 
-Each test class contains two nested classes:
+Most test classes contain two nested classes:
 
 ### `MainPart`
 Core test cases that cover the most important business logic.
@@ -40,6 +46,8 @@ Core test cases that cover the most important business logic.
 ### `OptionalPart`
 Additional test cases for deeper practice. Method names and signatures are already provided.
 **Your task:** implement the test body for each method marked with `// TODO: implement test`.
+
+> **Note:** `TransactionServiceTest` and `SimpleExchangeRateServiceTest` contain only `OptionalPart` — all test cases (including the core ones) are placed there.
 
 ---
 
@@ -96,14 +104,12 @@ Implement the following test cases:
 ---
 
 ## SimpleExchangeRateService
-### Main Part
-Implement the following test cases:
+### Optional Part
+All test cases are placed in `OptionalPart`:
 - Same currency exchange rate returns 1.
 - `setExchangeRate()` updates the rate correctly.
 - `clearRates()` removes all rates.
 - Constructor calls `loadRates()` on provided `RateSource`.
-
-### Optional Part
 - Convert USD to EUR returns correct amount.
 - Convert USD to UAH returns correct amount.
 - Convert EUR to UAH returns correct amount.
@@ -195,14 +201,12 @@ Implement the following test cases:
 ---
 
 ## TransactionService
-### Main Part
-Implement the following test cases:
+### Optional Part
+All test cases are placed in `OptionalPart`:
 - Transfer with valid data transfers money successfully.
 - Transfer operations occur in correct order.
 - Suspicious transfer throws exception and does not save.
 - Withdrawal near daily limit sends warning.
-
-### Optional Part
 - Transfer between different currencies converts amount correctly.
 - Multiple withdrawals tracking daily limit.
 - Transfer calculates fee correctly for medium amount.

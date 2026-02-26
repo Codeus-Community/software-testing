@@ -86,59 +86,6 @@ class TransactionServiceTest {
                 .build();
     }
 
-    @Nested
-    class MainPart {
-        /**
-         * Demonstrates: Complex isolation with multiple dependencies working together
-         * FIRST principles: Fast (all dependencies mocked), Independent (no real services)
-         * <p>
-         * Tests the complete transfer flow with multiple mocked services.
-         * Shows how to isolate a service that depends on many other services.
-         * Verifies the core business logic: balance changes and fee calculation.
-         */
-        // TODO: implement test
-
-        /**
-         * Demonstrates: InOrder verification - ensuring operations happen in correct sequence
-         * FIRST principles: Fast (no I/O), Self-validating (clear order verification)
-         * <p>
-         * Tests that transfer operations occur in the proper order:
-         * 1. Validate transaction
-         * 2. Check for fraud
-         * 3. Update accounts
-         * 4. Save transaction
-         * 5. Send notifications
-         * <p>
-         * Order matters in financial operations - you can't save before validating!
-         * InOrder ensures critical operations follow business rules sequence.
-         */
-        // TODO: implement test
-
-        /**
-         * Demonstrates: Negative verification with never() - ensuring operations DON'T happen
-         * FIRST principles: Independent (isolated fraud scenario), Repeatable (deterministic fraud check)
-         * <p>
-         * Tests that when fraud is detected, no actual transfer occurs.
-         * Uses never() to verify critical operations are skipped:
-         * - Accounts are NOT saved
-         * - Transaction is NOT recorded
-         * - Notifications are NOT sent
-         * <p>
-         * This is crucial for security - fraudulent operations must be completely blocked.
-         */
-        // TODO: implement test
-
-        /**
-         * Demonstrates: Integration of multiple services, conditional notifications
-         * FIRST principles: Fast (mocked time and repositories)
-         * <p>
-         * Tests withdrawal near daily limit triggers a warning notification.
-         * Shows integration between transaction history, limit checking, and notifications.
-         * Tests conditional logic: warning sent only when approaching limit (90%).
-         */
-        // TODO: implement test
-    }
-
     /**
      * Optional test cases for TransactionService - additional practice scenarios.
      */
@@ -162,9 +109,52 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Cross-currency transfer with exchange rate service
-         * FIRST principles: Fast (mocked exchange service), Independent
-         * <p>
+         * Tests the complete transfer flow with multiple mocked services.
+         * Shows how to isolate a service that depends on many other services.
+         * Verifies the core business logic: balance changes and fee calculation.
+         */
+        @Test
+        void transfer_WithValidData_TransfersMoneySuccessfully() {
+            // TODO: implement test
+        }
+
+        /**
+         * Tests that transfer operations occur in the proper order:
+         * 1. Validate transaction
+         * 2. Check for fraud
+         * 3. Update accounts
+         * 4. Save transaction
+         * 5. Send notifications
+         */
+        @Test
+        void transfer_VerifiesCorrectOrderOfOperations() {
+            // TODO: implement test
+        }
+
+        /**
+         * Tests that when fraud is detected, no actual transfer occurs.
+         * Uses never() to verify critical operations are skipped:
+         * - Accounts are NOT saved
+         * - Transaction is NOT recorded
+         * - Notifications are NOT sent
+         */
+        @Test
+        void transfer_WithSuspiciousActivity_DoesNotTransfer() {
+            // TODO: implement test
+        }
+
+        /**
+         * Tests withdrawal near daily limit triggers a warning notification.
+         * Shows integration between transaction history, limit checking, and notifications.
+         * Tests conditional logic: warning sent only when approaching limit (90%).
+         */
+
+        @Test
+        void withdraw_NearDailyLimit_SendsWarning() {
+            // TODO: implement test
+        }
+
+        /**
          * Tests transfer between accounts with different currencies.
          * From: USD account, To: EUR account
          * Service must convert amount using exchange rate: 1000 USD * 0.92 = 920 EUR
@@ -176,17 +166,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Multiple withdrawals within daily limit
-         * FIRST principles: Fast, Independent
-         * <p>
-         * Tests that multiple withdrawals are tracked for daily limit.
-         * Tests scenario: already withdrawn 7500, trying to withdraw 1500 more.
-         * Total: 9000, which is within 10000 limit but triggers warning (90% threshold).
-         */
-        /**
-         * Demonstrates: Multiple withdrawals within daily limit
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that multiple withdrawals are tracked for daily limit.
          * Tests scenario: already withdrawn 7600, trying to withdraw 1500 more.
          * Total: 9100, which is within 10000 limit but triggers warning (>90% threshold).
@@ -197,9 +176,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Fee calculation for different transfer amounts
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that transfer fee is calculated correctly based on amount.
          * Fee = 1% of amount, min 1, max 50
          * For 500: fee = 5.00 (within min-max range)
@@ -210,9 +186,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Fee calculation minimum threshold
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that minimum fee is applied for small transfers.
          * For 50: 1% would be 0.50, but min fee is 1.00
          * So fee should be 1.00 (the minimum)
@@ -223,9 +196,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Fee calculation maximum threshold
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that maximum fee cap is applied for large transfers.
          * For 10000: 1% would be 100, but max fee is 50
          * So fee should be 50.00 (the maximum)
@@ -236,9 +206,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Deposit operation with description
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests deposit method which is separate from AccountService.deposit.
          * TransactionService.deposit also records transaction with description.
          */
@@ -248,9 +215,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Withdrawal operation with description
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests withdrawal method in TransactionService.
          * Unlike AccountService.withdraw, this also creates transaction record.
          */
@@ -260,9 +224,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Transaction history retrieval by account
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests getAccountTransactions method.
          * Verifies that service correctly delegates to repository.
          */
@@ -272,9 +233,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Transaction history retrieval by date range
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests getAccountTransactionsByDateRange method.
          * Verifies filtering transactions by date period.
          */
@@ -284,9 +242,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Empty transaction history scenario
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that getAccountTransactions handles empty results correctly.
          * New accounts or accounts with no activity return empty list.
          */
@@ -296,9 +251,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Transfer without currency conversion (same currency)
-         * FIRST principles: Fast, Self-validating
-         * <p>
          * Tests that transfer between same-currency accounts doesn't call exchange service.
          * This is optimization - no conversion needed when currencies match.
          */
@@ -308,9 +260,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Both accounts receive notifications after transfer
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that transfer sends notifications to both sender and receiver.
          * Both parties need to be informed about the transaction.
          */
@@ -320,9 +269,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Daily limit warning not triggered when well below limit
-         * FIRST principles: Fast, Repeatable
-         * <p>
          * Tests that warning is NOT sent when withdrawal total is below 90% threshold.
          * Already withdrawn: 5000, trying: 1000, total: 6000
          * Limit: 10000, 90% threshold: 9000
@@ -334,9 +280,6 @@ class TransactionServiceTest {
         }
 
         /**
-         * Demonstrates: Cross-currency transfer with rate verification
-         * FIRST principles: Fast, Independent
-         * <p>
          * Tests that exchange service is called with correct parameters.
          * Verifies the amount, from currency, and to currency are passed correctly.
          */
