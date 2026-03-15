@@ -45,6 +45,7 @@ class TransactionValidatorTest {
          * Tests that valid withdrawal passes validation without throwing exceptions.
          * Uses assertDoesNotThrow() to verify no exceptions occur - different from
          * verify() used in mocked tests or assertThat() used for value assertions.
+         * @see #validateWithdrawal
          */
         // TODO: implement test
 
@@ -52,6 +53,7 @@ class TransactionValidatorTest {
          * Tests that insufficient funds are properly detected and rejected.
          * Shows InsufficientFundsException - a domain-specific exception type
          * that represents a business rule violation (not a technical error).
+         * @see #validateWithdrawal
          */
         // TODO: implement test
     }

@@ -103,36 +103,6 @@ Implement the following test cases:
 
 ---
 
-## SimpleExchangeRateService
-### Optional Part
-All test cases are placed in `OptionalPart`:
-- Same currency exchange rate returns 1.
-- `setExchangeRate()` updates the rate correctly.
-- `clearRates()` removes all rates.
-- Constructor calls `loadRates()` on provided `RateSource`.
-- Convert USD to EUR returns correct amount.
-- Convert USD to UAH returns correct amount.
-- Convert EUR to UAH returns correct amount.
-- Reverse rate is calculated correctly.
-- Reverse rate conversion returns correct amount.
-- Forward and reverse rates are mathematical inverses.
-- Null amount throws exception.
-- Negative amount throws exception.
-- Zero amount returns zero.
-- Null source currency in `setExchangeRate` throws exception.
-- Null target currency in `setExchangeRate` throws exception.
-- Null rate in `setExchangeRate` throws exception.
-- Negative rate throws exception.
-- Zero rate throws exception.
-- Null source currency in `getExchangeRate` throws exception.
-- Null target currency in `getExchangeRate` throws exception.
-- After `clearRates()` getting rate throws exception.
-- Chained conversion produces reasonable result.
-- Null source currency in `convert` throws exception.
-- Null target currency in `convert` throws exception.
-
----
-
 ## TransactionValidator
 ### Main Part
 Implement the following test cases:
@@ -221,3 +191,35 @@ All test cases are placed in `OptionalPart`:
 - Transfer sends notifications to both accounts.
 - Withdrawal well below daily limit does not send warning.
 - Transfer with different currencies calls exchange service with correct parameters.
+
+---
+
+## SimpleExchangeRateService
+### Optional Part
+All test cases are placed in `OptionalPart`:
+- Same currency exchange rate returns 1.
+- `setExchangeRate()` updates the rate correctly.
+- `clearRates()` removes all rates.
+- Constructor calls `loadRates()` on provided `RateSource`.
+- Convert USD to EUR returns correct amount.
+- Convert USD to UAH returns correct amount.
+- Convert EUR to UAH returns correct amount.
+- Reverse rate is calculated correctly.
+- Reverse rate conversion returns correct amount.
+- Forward and reverse rates are mathematical inverses.
+- Null amount throws exception.
+- Negative amount throws exception.
+- Zero amount returns zero.
+- Null source currency in `setExchangeRate` throws exception.
+- Null target currency in `setExchangeRate` throws exception.
+- Null rate in `setExchangeRate` throws exception.
+- Negative rate throws exception.
+- Zero rate throws exception.
+- Null source currency in `getExchangeRate` throws exception.
+- Null target currency in `getExchangeRate` throws exception.
+- After `clearRates()` getting rate throws exception.
+- Chained conversion produces reasonable result.
+- Null source currency in `convert` throws exception.
+- Null target currency in `convert` throws exception.
+
+---

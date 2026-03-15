@@ -45,8 +45,8 @@ class InterestCalculatorTest {
     class MainPart {
         /**
          * Tests simple interest calculation for a 30-day period.
-         * Shows how to test mathematical calculations with BigDecimal precision.
          * Pure function testing - no mocks needed, just input and expected output.
+         * @see #calculateInterest
          */
         // TODO: implement test
 
@@ -54,6 +54,7 @@ class InterestCalculatorTest {
          * Tests the edge case where calculation period is zero days.
          * Boundary testing ensures the function handles edge cases correctly (min/max/zero values).
          * Complements threshold testing from AccountServiceTest - here we test mathematical boundaries.
+         * @see #calculateInterest
          */
         // TODO: implement test
 

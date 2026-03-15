@@ -79,31 +79,31 @@ class AccountServiceTest {
     class MainPart {
         /**
          * Tests the basic account creation flow with valid data.
-         * Shows how to mock dependencies and verify the created account properties.
+         * @see #createAccount
          */
         // TODO: implement test
 
         /**
          * Tests deposit operation and verifies that all dependencies are called correctly.
-         * Shows how to verify mock interactions with validator, repository, and notification service.
+         * @see #deposit
          */
         // TODO: implement test
 
         /**
          * Tests withdrawal that results in low balance and verifies that alert is sent.
-         * Shows how to test edge cases where balance crosses a threshold (LOW_BALANCE_THRESHOLD).
+         * @see #withdraw
          */
         // TODO: implement test
 
         /**
          * Tests that suspicious deposits are detected and rejected with FraudDetectedException.
-         * Shows how to test exception scenarios and verify that certain operations are NOT called.
+         * @see #deposit
          */
         // TODO: implement test
 
         /**
          * Tests that closing an account with positive balance is not allowed.
-         * Shows how to test business rules and verify that invalid operations throw exceptions.
+         * @see #closeAccount
          */
         // TODO: implement test
     }

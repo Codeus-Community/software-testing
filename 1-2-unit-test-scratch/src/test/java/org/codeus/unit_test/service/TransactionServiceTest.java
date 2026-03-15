@@ -110,7 +110,6 @@ class TransactionServiceTest {
 
         /**
          * Tests the complete transfer flow with multiple mocked services.
-         * Shows how to isolate a service that depends on many other services.
          * Verifies the core business logic: balance changes and fee calculation.
          */
         @Test
@@ -145,7 +144,6 @@ class TransactionServiceTest {
 
         /**
          * Tests withdrawal near daily limit triggers a warning notification.
-         * Shows integration between transaction history, limit checking, and notifications.
          * Tests conditional logic: warning sent only when approaching limit (90%).
          */
 
