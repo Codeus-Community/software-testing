@@ -1,0 +1,1 @@
+# Integration Tests: writing integration tests from scratch task
