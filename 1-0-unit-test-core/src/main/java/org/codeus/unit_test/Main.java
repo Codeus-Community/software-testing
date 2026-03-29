@@ -29,7 +29,7 @@ public class Main {
     ExchangeRateService exchangeRateService = new SimpleExchangeRateService(rateSource);
 
     AccountService accountService = new AccountService(
-            accountRepository, validator, notificationService, fraudDetectionService
+            accountRepository, validator, notificationService, fraudDetectionService, timeProvider
     );
 
     TransactionService transactionService = new TransactionService(
