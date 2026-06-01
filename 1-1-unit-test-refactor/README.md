@@ -11,6 +11,8 @@ You will work with two test classes:
 
 Start with `SimpleExchangeRateServiceTest` first as a good warm-up. Once finished, switch to `TransactionServiceTest`.
 
+If the main task is easy, check the [Extra task](#Extra-task) below.
+
 ## High-level steps
 
 1. Open [SimpleExchangeRateServiceTest.java](./src/test/java/org/codeus/unit_test/service/SimpleExchangeRateServiceTest.java).
@@ -101,3 +103,152 @@ The assertion is too weak. Instead of only checking that the returned transactio
 This test reaches into a private method through reflection. Refactor it to verify fee-related behavior through the public API, so the test describes business behavior rather than implementation details.
 
 </details>
+
+
+## Extra task
+
+Put your answers to the task discussion in https://discord.com/channels/1265561983650893930/1313206047850238082
+
+1. Checkout `master` branch and check `org.codeus.unit_test.service.TransactionService#transfer` method.
+    - How would you simplify testing the `transfer` method and `TransactionService` class?
+    <details>
+
+    <summary>Author answer: Option 1</summary>
+    
+    Option 1: Small refactoring to separate concerns (infra and domain)
+    Slightly simplifies test case setup, but makes test cases for each concern easier to understand.
+    ```java
+   // public API method, infra level tests: should only ensure that correct repos are called 
+   public Transaction transfer(String fromAccountId, String toAccountId, BigDecimal amount) {
+        Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new IllegalArgumentException("Source account not found: " + fromAccountId));
+
+        Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new IllegalArgumentException("Destination account not found: " + toAccountId));
+
+        Transaction transaction = transferV2(fromAccount, toAccount, amount);
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        notificationService.sendTransactionNotification(fromAccount.getClientId(), savedTransaction);
+        notificationService.sendTransactionNotification(toAccount.getClientId(), savedTransaction);
+
+        return savedTransaction;
+    }
+
+    // private core-logic method, domain level tests: should only verify business logic scenarios
+    protected Transaction transfer(Account fromAccount, Account toAccount, BigDecimal amount) {
+        transactionValidator.validateTransfer(fromAccount, toAccount, amount);
+
+        if (fraudDetectionService.isSuspiciousTransfer(fromAccount, toAccount, amount)) {
+            Transaction suspiciousTransaction = buildTransaction(fromAccount.getId(), toAccount.getId(), amount,
+              fromAccount.getCurrency(), TransactionType.TRANSFER, "BLOCKED - Suspicious activity");
+            fraudDetectionService.reportSuspiciousActivity(suspiciousTransaction);
+            throw new FraudDetectedException("Suspicious transfer detected");
+        }
+
+        BigDecimal fee = calculateTransferFee(amount);
+        BigDecimal totalDeduction = amount.add(fee);
+
+        BigDecimal amountInTargetCurrency = amount;
+        if (!fromAccount.getCurrency().equals(toAccount.getCurrency())) {
+            amountInTargetCurrency = exchangeRateService.convert(
+              amount,
+              fromAccount.getCurrency(),
+              toAccount.getCurrency()
+            );
+        }
+
+        fromAccount.setBalance(fromAccount.getBalance().subtract(totalDeduction));
+        toAccount.setBalance(toAccount.getBalance().add(amountInTargetCurrency));
+
+        Transaction transaction = buildTransaction(fromAccount.getId(), toAccount.getId(), amount,
+          fromAccount.getCurrency(), TransactionType.TRANSFER,
+          "Transfer from " + fromAccount.getId() + " to " + toAccount.getId());
+        transaction.setFee(fee);
+
+        return transaction;
+    }
+   ```
+    </details>
+    <details>
+
+    <summary>Author answer: Option 2</summary>
+   
+    Option 2: Larger refactoring to separate concerns and reduce dependencies
+    
+    ```java
+   
+   //Caller side:
+   private final AccountRepository accountRepository;
+   private final TransactionRepository transactionRepository;
+   private final TransactionService transactionService;
+
+   public void callerLogic() {
+       //...
+       Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new IllegalArgumentException("Source account not found: " + fromAccountId));
+
+       Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new IllegalArgumentException("Destination account not found: " + toAccountId));
+   
+      TransferOutcome transferOutcome = transactionService.transfer(fromAccount, toAccount, amount);
+      Transaction mapped = mapper.map(transferOutcome, Transaction.class);
+   
+      // These should be a part of one DB transaction
+      accountRepository.save(transferOutcome.fromAccount);
+      accountRepository.save(transferOutcome.toAccount);
+      Transaction savedTransaction = transactionRepository.save(mapped);
+      // 
+
+      notificationService.sendTransactionNotification(fromAccount.getClientId(), savedTransaction);
+      notificationService.sendTransactionNotification(toAccount.getClientId(), savedTransaction);
+      
+   }
+ 
+    // separate java file
+    // can be also renamed to 
+    public class TransactionService {
+
+       // public API method with core-logic, domain level tests: should only verify business logic scenarios
+       protected TransferOutcome transfer(Account fromAccount, Account toAccount, BigDecimal amount) {
+           transactionValidator.validateTransfer(fromAccount, toAccount, amount);
+   
+           if (fraudDetectionService.isSuspiciousTransfer(fromAccount, toAccount, amount)) {
+               Transaction suspiciousTransaction = buildTransaction(fromAccount.getId(), toAccount.getId(), amount,
+                 fromAccount.getCurrency(), TransactionType.TRANSFER, "BLOCKED - Suspicious activity");
+               fraudDetectionService.reportSuspiciousActivity(suspiciousTransaction);
+               throw new FraudDetectedException("Suspicious transfer detected");
+           }
+   
+           BigDecimal fee = calculateTransferFee(amount);
+           BigDecimal totalDeduction = amount.add(fee);
+   
+           BigDecimal amountInTargetCurrency = amount;
+           if (!fromAccount.getCurrency().equals(toAccount.getCurrency())) {
+               amountInTargetCurrency = exchangeRateService.convert(
+                 amount,
+                 fromAccount.getCurrency(),
+                 toAccount.getCurrency()
+               );
+           }
+   
+           fromAccount.setBalance(fromAccount.getBalance().subtract(totalDeduction));
+           toAccount.setBalance(toAccount.getBalance().add(amountInTargetCurrency));
+   
+           TransferOutcome transferOutcome = buildTransaction(fromAccount, toAccount, amount,
+             fromAccount.getCurrency(), TransactionType.TRANSFER,
+             "Transfer from " + fromAccount.getId() + " to " + toAccount.getId());
+           transferOutcome.setFee(fee);
+   
+           return transferOutcome;
+       }
+    }
+   ```
+    </details>
+
+2. Checkout `master-completed` branch and check how dependencies mocking is implemented in `1-1-unit-test-refactor/src/test/java/org/codeus/unit_test/service/TransactionServiceTest.java`.
+    - List pros and cons of that approach compared to using some mocking library (e.g. Mockito).
+    - List cases where you would prefer to have test doubles over a mocking library.
+
