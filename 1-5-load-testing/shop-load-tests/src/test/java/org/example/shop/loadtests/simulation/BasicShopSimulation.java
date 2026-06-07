@@ -11,21 +11,10 @@ import java.time.Duration;
 import static io.gatling.javaapi.core.CoreDsl.*;
 
 /**
- * Basic Gatling simulation for the lesson.
+ * Gatling simulation setting up workload injection profiles and assertions.
  *
- * For now:
- *  - very simple scenario (GET /api/products)
- *  - low load profile: 1 user at once + ramp to 5 users during 10s
- *
- * This class should be extended with:
- *  - TODO-5: a more realistic load profile:
- *      - warm-up (ramp): 1 → 6 users/s during 40s;
- *      - steady load: 6 users/s during 60s;
- *      - spike / stress: 14 users/s during 10s.
- *  - TODO-6: multiple scenarios (browse vs checkout) running in parallel with different traffic mix and profiles.
- *  - TODO-7: SLA assertions (latency + error rate) so that the run fails on regressions.
- *      - global p95 latency < 900 ms;
- *      - global error percentage (KO) <= 0.5%.
+ * Implement the exercise steps (TODO-5 to TODO-7) in this class.
+ * Refer to the module's README.md for detailed instructions and hints.
  */
 public class BasicShopSimulation extends Simulation {
 
@@ -35,13 +24,29 @@ public class BasicShopSimulation extends Simulation {
 
         HttpProtocolBuilder httpProtocol = HttpProtocolFactory.create(baseUrl);
 
+        // TODO-6: Instead of using the single scenario build() method, update this simulation
+        //         to obtain the feeder and run both browseCatalog and checkoutFlow scenarios in parallel.
         ScenarioBuilder scn = BasicShopScenario.build();
 
         setUp(
+            // TODO-5: Update the injection profile to represent a multi-phase workload model:
+            //         - Warm-up (ramp-up): 1 to 6 users/sec over 40 seconds.
+            //         - Steady load: constant 6 users/sec for 60 seconds.
+            //         - Spike load: constant 14 users/sec for 10 seconds.
+            //
+            // TODO-6: Inject traffic to both browseCatalog and checkoutFlow scenarios in parallel:
+            //         - browseCatalog: Use the workload profile from TODO-5.
+            //         - checkoutFlow: Use a lower workload profile:
+            //             - Warm-up: 1 to 2 users/sec over 40 seconds.
+            //             - Steady load: constant 2 users/sec for 60 seconds.
+            //             - Spike load: constant 5 users/sec for 10 seconds.
             scn.injectOpen(
                 atOnceUsers(1),
                 rampUsers(5).during(Duration.ofSeconds(10))
             )
-        ).protocols(httpProtocol);
+        )
+        .protocols(httpProtocol);
+        // TODO-7: Add SLA assertions to check that global 95th percentile response time is less than 900 ms,
+        //         and total failed requests percentage is at most 0.5%.
     }
 }
