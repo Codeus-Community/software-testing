@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/localstack_demo
+    username: localstack
+    password: localstack
+
+app:
+  demo:
+    aws:
+      endpoint-url: http://localhost:4566
+    consumer:
+      enabled: true

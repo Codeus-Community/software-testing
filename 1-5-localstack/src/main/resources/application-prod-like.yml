@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${PROD_LIKE_DB_HOST:localhost}:5432/${PROD_LIKE_DB_NAME:localstack_demo}
+    username: ${PROD_LIKE_DB_USER:localstack}
+    password: ${PROD_LIKE_DB_PASSWORD:localstack}
+
+app:
+  demo:
+    aws:
+      access-key: prod-like-access-key
+      secret-key: prod-like-secret-key
+    s3:
+      bucket: prod-like-demo-ingestion-bucket
+      key: incoming/payloads.json
+    sqs:
+      queue-name: prod-like-demo-queue
+    sns:
+      topic-name: prod-like-demo-topic
+      subscription-queue-name: prod-like-demo-sns-subscription-queue
+    lambda:
+      function-name: prod-like-demo-enrichment
+    defaults:
+      batch-size: 5
+      use-lambda: true
+    consumer:
+      enabled: false
