@@ -75,9 +75,12 @@ SNS_QUEUE_POLICY=$(cat <<EOF
 EOF
 )
 
+SNS_QUEUE_POLICY_COMPACT=$(printf '%s' "${SNS_QUEUE_POLICY}" | tr -d '\n')
+SNS_QUEUE_POLICY_ESCAPED=${SNS_QUEUE_POLICY_COMPACT//\"/\\\"}
+
 awslocal sqs set-queue-attributes \
   --queue-url "${SNS_QUEUE_URL}" \
-  --attributes "Policy=${SNS_QUEUE_POLICY}" >/dev/null
+  --attributes "{\"Policy\":\"${SNS_QUEUE_POLICY_ESCAPED}\"}" >/dev/null
 
 awslocal sns subscribe \
   --topic-arn "${TOPIC_ARN}" \
