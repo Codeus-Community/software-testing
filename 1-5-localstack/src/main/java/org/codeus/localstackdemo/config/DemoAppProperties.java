@@ -1,18 +1,34 @@
 package org.codeus.localstackdemo.config;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @ConfigurationProperties(prefix = "app.demo")
 public class DemoAppProperties {
 
-    private String region = "us-east-1";
+    @NotBlank
+    private String region;
+    @Valid
     private AwsProperties aws = new AwsProperties();
+    @Valid
     private S3Properties s3 = new S3Properties();
+    @Valid
     private SqsProperties sqs = new SqsProperties();
+    @Valid
     private SnsProperties sns = new SnsProperties();
+    @Valid
     private LambdaProperties lambda = new LambdaProperties();
+    @Valid
     private SsmProperties ssm = new SsmProperties();
+    @Valid
     private DefaultsProperties defaults = new DefaultsProperties();
+    @Valid
     private ConsumerProperties consumer = new ConsumerProperties();
 
     public String getRegion() {
@@ -90,8 +106,10 @@ public class DemoAppProperties {
     public static class AwsProperties {
 
         private String endpointUrl;
-        private String accessKey = "test";
-        private String secretKey = "test";
+        @NotBlank
+        private String accessKey;
+        @NotBlank
+        private String secretKey;
 
         public String getEndpointUrl() {
             return endpointUrl;
@@ -120,8 +138,10 @@ public class DemoAppProperties {
 
     public static class S3Properties {
 
-        private String bucket = "localstack-demo-bucket";
-        private String key = "payloads/payloads.json";
+        @NotBlank
+        private String bucket;
+        @NotBlank
+        private String key;
 
         public String getBucket() {
             return bucket;
@@ -142,7 +162,8 @@ public class DemoAppProperties {
 
     public static class SqsProperties {
 
-        private String queueName = "localstack-demo-queue";
+        @NotBlank
+        private String queueName;
 
         public String getQueueName() {
             return queueName;
@@ -155,8 +176,10 @@ public class DemoAppProperties {
 
     public static class SnsProperties {
 
-        private String topicName = "localstack-demo-topic";
-        private String subscriptionQueueName = "localstack-demo-sns-subscription-queue";
+        @NotBlank
+        private String topicName;
+        @NotBlank
+        private String subscriptionQueueName;
 
         public String getTopicName() {
             return topicName;
@@ -177,7 +200,8 @@ public class DemoAppProperties {
 
     public static class LambdaProperties {
 
-        private String functionName = "localstack-demo-enrichment";
+        @NotBlank
+        private String functionName;
 
         public String getFunctionName() {
             return functionName;
@@ -190,8 +214,8 @@ public class DemoAppProperties {
 
     public static class SsmProperties {
 
-        private String batchSizeParameter = "/localstack-demo/batchsize";
-        private String useLambdaParameter = "/localstack-demo/useLambda";
+        private String batchSizeParameter;
+        private String useLambdaParameter;
 
         public String getBatchSizeParameter() {
             return batchSizeParameter;
@@ -212,53 +236,62 @@ public class DemoAppProperties {
 
     public static class DefaultsProperties {
 
-        private int batchSize = 3;
-        private boolean useLambda = false;
+        @NotNull
+        @Min(1)
+        private Integer batchSize;
+        @NotNull
+        private Boolean useLambda;
 
-        public int getBatchSize() {
+        public Integer getBatchSize() {
             return batchSize;
         }
 
-        public void setBatchSize(int batchSize) {
+        public void setBatchSize(Integer batchSize) {
             this.batchSize = batchSize;
         }
 
-        public boolean isUseLambda() {
+        public Boolean isUseLambda() {
             return useLambda;
         }
 
-        public void setUseLambda(boolean useLambda) {
+        public void setUseLambda(Boolean useLambda) {
             this.useLambda = useLambda;
         }
     }
 
     public static class ConsumerProperties {
 
-        private boolean enabled = true;
-        private long pollDelayMs = 3000L;
-        private int maxMessages = 10;
+        @NotNull
+        private Boolean enabled;
+        @NotNull
+        @Min(0)
+        private Long pollDelayMs;
+        @NotNull
+        @Min(1)
+        @Max(10)
+        private Integer maxMessages;
 
-        public boolean isEnabled() {
+        public Boolean isEnabled() {
             return enabled;
         }
 
-        public void setEnabled(boolean enabled) {
+        public void setEnabled(Boolean enabled) {
             this.enabled = enabled;
         }
 
-        public long getPollDelayMs() {
+        public Long getPollDelayMs() {
             return pollDelayMs;
         }
 
-        public void setPollDelayMs(long pollDelayMs) {
+        public void setPollDelayMs(Long pollDelayMs) {
             this.pollDelayMs = pollDelayMs;
         }
 
-        public int getMaxMessages() {
+        public Integer getMaxMessages() {
             return maxMessages;
         }
 
-        public void setMaxMessages(int maxMessages) {
+        public void setMaxMessages(Integer maxMessages) {
             this.maxMessages = maxMessages;
         }
     }

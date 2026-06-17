@@ -14,27 +14,25 @@ spring:
 
 app:
   demo:
-    region: us-east-1
+    # Shared template values. Provide them via a profile file or environment variables.
+    region: ${APP_DEMO_REGION}
     aws:
-      access-key: test
-      secret-key: test
+      access-key: ${APP_DEMO_AWS_ACCESS_KEY}
+      secret-key: ${APP_DEMO_AWS_SECRET_KEY}
     s3:
-      bucket: localstack-demo-bucket
-      key: payloads/payloads.json
+      bucket: ${APP_DEMO_S3_BUCKET}
+      key: ${APP_DEMO_S3_KEY}
     sqs:
-      queue-name: localstack-demo-queue
+      queue-name: ${APP_DEMO_SQS_QUEUE_NAME}
     sns:
-      topic-name: localstack-demo-topic
-      subscription-queue-name: localstack-demo-sns-subscription-queue
+      topic-name: ${APP_DEMO_SNS_TOPIC_NAME}
+      subscription-queue-name: ${APP_DEMO_SNS_SUBSCRIPTION_QUEUE_NAME}
     lambda:
-      function-name: localstack-demo-enrichment
-    ssm:
-      batch-size-parameter: /localstack-demo/batchsize
-      use-lambda-parameter: /localstack-demo/useLambda
+      function-name: ${APP_DEMO_LAMBDA_FUNCTION_NAME}
     defaults:
-      batch-size: 3
-      use-lambda: false
+      batch-size: ${APP_DEMO_DEFAULT_BATCH_SIZE}
+      use-lambda: ${APP_DEMO_DEFAULT_USE_LAMBDA}
     consumer:
-      enabled: true
-      poll-delay-ms: 3000
-      max-messages: 10
+      enabled: ${APP_DEMO_CONSUMER_ENABLED}
+      poll-delay-ms: ${APP_DEMO_CONSUMER_POLL_DELAY_MS}
+      max-messages: ${APP_DEMO_CONSUMER_MAX_MESSAGES}

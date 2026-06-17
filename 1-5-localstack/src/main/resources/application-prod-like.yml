@@ -1,26 +1,29 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${PROD_LIKE_DB_HOST:localhost}:5432/${PROD_LIKE_DB_NAME:localstack_demo}
-    username: ${PROD_LIKE_DB_USER:localstack}
-    password: ${PROD_LIKE_DB_PASSWORD:localstack}
+    url: jdbc:postgresql://${DB_HOST:postgres.internal}:5432/${DB_NAME:orders_ingestion}
+    username: ${DB_USER:orders_service}
+    password: ${DB_PASSWORD:orders_service_password}
 
 app:
   demo:
+    region: ${APP_DEMO_REGION:us-east-1}
     aws:
-      access-key: prod-like-access-key
-      secret-key: prod-like-secret-key
+      access-key: ${AWS_ACCESS_KEY_ID:AKIAIOSFODNN7EXAMPLE}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY}
     s3:
-      bucket: prod-like-demo-ingestion-bucket
-      key: incoming/payloads.json
+      bucket: customer-events-ingestion
+      key: inbound/customer-events.json
     sqs:
-      queue-name: prod-like-demo-queue
+      queue-name: customer-events-processing
     sns:
-      topic-name: prod-like-demo-topic
-      subscription-queue-name: prod-like-demo-sns-subscription-queue
+      topic-name: customer-events-notifications
+      subscription-queue-name: customer-events-notifications-consumer
     lambda:
-      function-name: prod-like-demo-enrichment
+      function-name: customer-events-enrichment
     defaults:
-      batch-size: 5
+      batch-size: 25
       use-lambda: true
     consumer:
       enabled: false
+      poll-delay-ms: 3000
+      max-messages: 10
