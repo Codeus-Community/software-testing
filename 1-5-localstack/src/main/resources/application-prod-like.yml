@@ -20,6 +20,9 @@ app:
       subscription-queue-name: customer-events-notifications-consumer
     lambda:
       function-name: customer-events-enrichment
+    ssm:
+      batch-size-parameter: /app/batchsize
+      use-lambda-parameter: /app/useLambda
     defaults:
       batch-size: 25
       use-lambda: true

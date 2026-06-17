@@ -29,6 +29,9 @@ app:
       subscription-queue-name: ${APP_DEMO_SNS_SUBSCRIPTION_QUEUE_NAME}
     lambda:
       function-name: ${APP_DEMO_LAMBDA_FUNCTION_NAME}
+    ssm:
+      batch-size-parameter: ${APP_DEMO_LAMBDA_BATCH_SIZE_PARAM}
+      use-lambda-parameter: ${APP_DEMO_LAMBDA_USE_LAMBDA_PARAM}
     defaults:
       batch-size: ${APP_DEMO_DEFAULT_BATCH_SIZE}
       use-lambda: ${APP_DEMO_DEFAULT_USE_LAMBDA}
