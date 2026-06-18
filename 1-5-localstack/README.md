@@ -52,7 +52,9 @@ This starts:
 - `localstack` on `http://localhost:4566`
 - `postgres` on `localhost:5432`
 
-The LocalStack bootstrap script creates:
+The LocalStack bootstrap script deploys the shared CloudFormation stack `localstack-demo-stack` from `localstack/cloudformation/localstack-demo.yml`, then uploads the demo payload file to S3.
+
+The stack creates:
 
 - S3 bucket `localstack-demo-bucket`
 - object `payloads/payloads.json`
@@ -86,6 +88,8 @@ curl -X POST http://localhost:8080/lambda-flow
 ## Useful inspection commands
 
 ```powershell
+docker exec localstack-demo awslocal cloudformation describe-stacks --stack-name localstack-demo-stack
+docker exec localstack-demo awslocal cloudformation list-stack-resources --stack-name localstack-demo-stack
 docker exec localstack-demo awslocal s3 ls s3://localstack-demo-bucket/payloads/
 docker exec localstack-demo awslocal ssm get-parameter --name /localstack-demo/batchsize
 docker exec localstack-demo awslocal sqs receive-message --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/localstack-demo-queue

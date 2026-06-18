@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestConfig.class)
 class LocalstackDemoControllerIntegrationTest {
 
-    private static final DockerImageName LOCALSTACK_IMAGE = DockerImageName.parse("localstack/localstack:3.0.2");
+    private static final DockerImageName LOCALSTACK_IMAGE = DockerImageName.parse("localstack/localstack:4.5.0");
     private static final String MAIN_QUEUE_NAME = "localstack-demo-queue";
     private static final String SNS_QUEUE_NAME = "localstack-demo-sns-subscription-queue";
     private static final String SNS_TOPIC_NAME = "localstack-demo-topic";
@@ -61,6 +61,7 @@ class LocalstackDemoControllerIntegrationTest {
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(LOCALSTACK_IMAGE)
             .withServices(
                     LocalStackContainer.Service.S3,
+                    LocalStackContainer.Service.CLOUDFORMATION,
                     LocalStackContainer.Service.SQS,
                     LocalStackContainer.Service.SNS,
                     LocalStackContainer.Service.SSM,
@@ -69,6 +70,7 @@ class LocalstackDemoControllerIntegrationTest {
 
     static {
         Startables.deepStart(POSTGRES, LOCALSTACK).join();
+        LocalstackCloudFormationDeployer.deploy(LOCALSTACK);
     }
 
     @DynamicPropertySource
