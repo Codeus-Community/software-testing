@@ -2,7 +2,7 @@ spring:
   application:
     name: localstack-demo
   profiles:
-    default: local
+    default: prod-like
   jpa:
     open-in-view: false
     hibernate:
