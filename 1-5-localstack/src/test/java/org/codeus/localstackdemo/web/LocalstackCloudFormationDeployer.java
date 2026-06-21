@@ -1,13 +1,14 @@
 package org.codeus.localstackdemo.web;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
-import org.testcontainers.containers.localstack.LocalStackContainer;
+import io.floci.testcontainers.FlociContainer;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
@@ -25,16 +26,16 @@ import static org.awaitility.Awaitility.await;
 
 final class LocalstackCloudFormationDeployer {
 
-    static final String STACK_NAME = "localstack-demo-stack";
-    private static final String LAMBDA_NAME = "localstack-demo-enrichment";
+    static final String STACK_NAME = "floci-demo-stack";
+    private static final String LAMBDA_NAME = "floci-demo-enrichment";
 
     private LocalstackCloudFormationDeployer() {
     }
 
-    static void deploy(LocalStackContainer localstack) {
+    static void deploy(FlociContainer floci) {
         String templateBody = readTemplate();
 
-        try (CloudFormationClient cloudFormationClient = cloudFormationClient(localstack)) {
+        try (CloudFormationClient cloudFormationClient = cloudFormationClient(floci)) {
             cloudFormationClient.createStack(CreateStackRequest.builder()
                     .stackName(STACK_NAME)
                     .templateBody(templateBody)
@@ -54,28 +55,28 @@ final class LocalstackCloudFormationDeployer {
                         );
                     });
         } catch (CloudFormationException exception) {
-            throw new IllegalStateException("Unable to deploy LocalStack CloudFormation stack", exception);
+            throw new IllegalStateException("Unable to deploy Floci CloudFormation stack", exception);
         }
 
-        waitUntilLambdaIsReady(localstack);
+        waitUntilLambdaIsReady(floci);
     }
 
-    private static CloudFormationClient cloudFormationClient(LocalStackContainer localstack) {
+    private static CloudFormationClient cloudFormationClient(FlociContainer floci) {
         return CloudFormationClient.builder()
-                .endpointOverride(localstack.getEndpointOverride(LocalStackContainer.Service.CLOUDFORMATION))
-                .region(Region.of(localstack.getRegion()))
+                .endpointOverride(URI.create(floci.getEndpoint()))
+                .region(Region.of(floci.getRegion()))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(localstack.getAccessKey(), localstack.getSecretKey())
+                        AwsBasicCredentials.create(floci.getAccessKey(), floci.getSecretKey())
                 ))
                 .build();
     }
 
-    private static LambdaClient lambdaClient(LocalStackContainer localstack) {
+    private static LambdaClient lambdaClient(FlociContainer floci) {
         return LambdaClient.builder()
-                .endpointOverride(localstack.getEndpointOverride(LocalStackContainer.Service.LAMBDA))
-                .region(Region.of(localstack.getRegion()))
+                .endpointOverride(URI.create(floci.getEndpoint()))
+                .region(Region.of(floci.getRegion()))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(localstack.getAccessKey(), localstack.getSecretKey())
+                        AwsBasicCredentials.create(floci.getAccessKey(), floci.getSecretKey())
                 ))
                 .build();
     }
@@ -100,8 +101,8 @@ final class LocalstackCloudFormationDeployer {
         }
     }
 
-    private static void waitUntilLambdaIsReady(LocalStackContainer localstack) {
-        try (LambdaClient lambdaClient = lambdaClient(localstack)) {
+    private static void waitUntilLambdaIsReady(FlociContainer floci) {
+        try (LambdaClient lambdaClient = lambdaClient(floci)) {
             await().atMost(Duration.ofSeconds(60))
                     .ignoreExceptions()
                     .until(() -> "Active".equals(lambdaClient.getFunctionConfiguration(GetFunctionConfigurationRequest.builder()
@@ -129,22 +130,22 @@ final class LocalstackCloudFormationDeployer {
         try {
             return Files.readString(resolveTemplatePath());
         } catch (IOException exception) {
-            throw new IllegalStateException("Unable to read LocalStack CloudFormation template", exception);
+            throw new IllegalStateException("Unable to read Floci CloudFormation template", exception);
         }
     }
 
     private static Path resolveTemplatePath() {
         Path workingDirectory = Path.of(System.getProperty("user.dir"));
-        Path moduleRelative = workingDirectory.resolve("localstack/cloudformation/localstack-demo.yml");
+        Path moduleRelative = workingDirectory.resolve("floci/cloudformation/floci-demo.yml");
         if (Files.exists(moduleRelative)) {
             return moduleRelative;
         }
 
-        Path repoRelative = workingDirectory.resolve("1-5-localstack/localstack/cloudformation/localstack-demo.yml");
+        Path repoRelative = workingDirectory.resolve("1-5-localstack/floci/cloudformation/floci-demo.yml");
         if (Files.exists(repoRelative)) {
             return repoRelative;
         }
 
-        throw new IllegalStateException("Unable to locate localstack/cloudformation/localstack-demo.yml from " + workingDirectory);
+        throw new IllegalStateException("Unable to locate floci/cloudformation/floci-demo.yml from " + workingDirectory);
     }
 }

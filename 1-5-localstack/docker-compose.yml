@@ -1,29 +1,37 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: localstack-demo-postgres
+    container_name: floci-demo-postgres
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: localstack_demo
-      POSTGRES_USER: localstack
-      POSTGRES_PASSWORD: localstack
+      POSTGRES_DB: floci_demo
+      POSTGRES_USER: floci
+      POSTGRES_PASSWORD: floci
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U localstack -d localstack_demo"]
+      test: ["CMD-SHELL", "pg_isready -U floci -d floci_demo"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  localstack:
-    image: localstack/localstack:4.5.0
-    container_name: localstack-demo
+  floci:
+    image: floci/floci:1.5.26
+    container_name: floci-demo
     ports:
       - "4566:4566"
-    environment:
-      SERVICES: cloudformation,s3,ssm,sqs,sns,lambda
-      AWS_DEFAULT_REGION: us-east-1
-      DEBUG: 1
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./localstack:/opt/demo"
-      - "./localstack/init:/etc/localstack/init"
+      - "./floci:/opt/demo:ro"
+
+  bootstrap:
+    image: amazon/aws-cli:2.35.8
+    depends_on:
+      - floci
+    environment:
+      AWS_ENDPOINT_URL: http://floci:4566
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+    volumes:
+      - "./floci:/opt/demo:ro"
+    entrypoint: ["/bin/sh", "-c", "sh /opt/demo/bootstrap/bootstrap.sh"]

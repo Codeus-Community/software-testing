@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.floci.testcontainers.FlociContainer;
 import org.codeus.localstackdemo.domain.DemoPayload;
 import org.codeus.localstackdemo.domain.SourceType;
 import org.codeus.localstackdemo.persistence.ProcessedPayloadEntity;
@@ -17,18 +18,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Sort;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.lifecycle.Startables;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -43,34 +42,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestConfig.class)
 class LocalstackDemoControllerIntegrationTest {
 
-    private static final DockerImageName LOCALSTACK_IMAGE = DockerImageName.parse("localstack/localstack:4.5.0");
-    private static final String MAIN_QUEUE_NAME = "localstack-demo-queue";
-    private static final String SNS_QUEUE_NAME = "localstack-demo-sns-subscription-queue";
-    private static final String SNS_TOPIC_NAME = "localstack-demo-topic";
+    private static final String MAIN_QUEUE_NAME = "floci-demo-queue";
+    private static final String SNS_QUEUE_NAME = "floci-demo-sns-subscription-queue";
+    private static final String SNS_TOPIC_NAME = "floci-demo-topic";
     private static final String PROCESSED_PAYLOAD_TABLE = "processed_payload";
     private static final int DEFAULT_PAYLOAD_COUNT = 5;
 
     @Container
     @SuppressWarnings("resource")
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("localstack_demo")
-            .withUsername("localstack")
-            .withPassword("localstack");
+            .withDatabaseName("floci_demo")
+            .withUsername("floci")
+            .withPassword("floci");
 
     @Container
-    private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(LOCALSTACK_IMAGE)
-            .withServices(
-                    LocalStackContainer.Service.S3,
-                    LocalStackContainer.Service.CLOUDFORMATION,
-                    LocalStackContainer.Service.SQS,
-                    LocalStackContainer.Service.SNS,
-                    LocalStackContainer.Service.SSM,
-                    LocalStackContainer.Service.LAMBDA
-            );
+    private static final FlociContainer FLOCI = new FlociContainer("floci/floci:1.5.26")
+            .withStartupTimeout(Duration.ofMinutes(2));
 
     static {
-        Startables.deepStart(POSTGRES, LOCALSTACK).join();
-        LocalstackCloudFormationDeployer.deploy(LOCALSTACK);
+        Startables.deepStart(POSTGRES, FLOCI).join();
+        LocalstackCloudFormationDeployer.deploy(FLOCI);
     }
 
     @DynamicPropertySource
@@ -78,13 +69,10 @@ class LocalstackDemoControllerIntegrationTest {
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
-        registry.add("app.demo.region", LOCALSTACK::getRegion);
-        registry.add("app.demo.aws.access-key", LOCALSTACK::getAccessKey);
-        registry.add("app.demo.aws.secret-key", LOCALSTACK::getSecretKey);
-        registry.add(
-                "app.demo.aws.endpoint-url",
-                () -> LOCALSTACK.getEndpointOverride(LocalStackContainer.Service.S3).toString()
-        );
+        registry.add("app.demo.region", FLOCI::getRegion);
+        registry.add("app.demo.aws.access-key", FLOCI::getAccessKey);
+        registry.add("app.demo.aws.secret-key", FLOCI::getSecretKey);
+        registry.add("app.demo.aws.endpoint-url", FLOCI::getEndpoint);
     }
 
     @Autowired

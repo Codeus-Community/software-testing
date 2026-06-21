@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Floci demo infrastructure for the 1-5-localstack module
+
+Resources:
+  DemoBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: floci-demo-bucket
+
+  DemoQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: floci-demo-queue
+      VisibilityTimeout: 30
+
+  DemoTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: floci-demo-topic
+
+  DemoSubscriptionQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: floci-demo-sns-subscription-queue
+      VisibilityTimeout: 30
+
+  DemoSubscriptionQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref DemoSubscriptionQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowFlociDemoTopic
+            Effect: Allow
+            Principal: "*"
+            Action: sqs:SendMessage
+            Resource: !GetAtt DemoSubscriptionQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref DemoTopic
+
+  DemoTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref DemoTopic
+      Protocol: sqs
+      Endpoint: !GetAtt DemoSubscriptionQueue.Arn
+      RawMessageDelivery: true
+
+  DemoBatchSizeParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /floci-demo/batchsize
+      Type: String
+      Value: "3"
+
+  DemoUseLambdaParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /floci-demo/useLambda
+      Type: String
+      Value: "true"
+
+  DemoLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: floci-demo-enrichment
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: arn:aws:iam::000000000000:role/floci-demo-lambda-role
+      Code:
+        ZipFile: |
+          exports.handler = async () => 42;
+
+Outputs:
+  StackName:
+    Value: floci-demo-stack
+  BucketName:
+    Value: !Ref DemoBucket
+  QueueUrl:
+    Value: !Ref DemoQueue
+  TopicArn:
+    Value: !Ref DemoTopic
+  SubscriptionQueueUrl:
+    Value: !Ref DemoSubscriptionQueue
+  LambdaName:
+    Value: !Ref DemoLambda

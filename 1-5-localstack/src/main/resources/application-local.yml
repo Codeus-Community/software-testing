@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/localstack_demo
-    username: localstack
-    password: localstack
+    url: jdbc:postgresql://localhost:5432/floci_demo
+    username: floci
+    password: floci
 
 app:
   demo:
@@ -12,18 +12,18 @@ app:
       secret-key: test
       endpoint-url: http://localhost:4566
     s3:
-      bucket: localstack-demo-bucket
+      bucket: floci-demo-bucket
       key: payloads/payloads.json
     sqs:
-      queue-name: localstack-demo-queue
+      queue-name: floci-demo-queue
     sns:
-      topic-name: localstack-demo-topic
-      subscription-queue-name: localstack-demo-sns-subscription-queue
+      topic-name: floci-demo-topic
+      subscription-queue-name: floci-demo-sns-subscription-queue
     lambda:
-      function-name: localstack-demo-enrichment
+      function-name: floci-demo-enrichment
     ssm:
-      batch-size-parameter: /localstack-demo/batchsize
-      use-lambda-parameter: /localstack-demo/useLambda
+      batch-size-parameter: /floci-demo/batchsize
+      use-lambda-parameter: /floci-demo/useLambda
     defaults:
       batch-size: 3
       use-lambda: false

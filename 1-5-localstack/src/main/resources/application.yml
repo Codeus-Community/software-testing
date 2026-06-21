@@ -1,6 +1,6 @@
 spring:
   application:
-    name: localstack-demo
+    name: floci-demo
   profiles:
     default: local
   jpa:

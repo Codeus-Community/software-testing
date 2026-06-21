@@ -1,6 +1,6 @@
-# LocalStack Spring Demo
+# Floci Spring Demo
 
-This module is a small Spring Boot example that shows how to combine LocalStack, PostgreSQL, and several AWS services in one app.
+This module is a small Spring Boot example that shows how to combine Floci, PostgreSQL, and several AWS services in one app.
 
 ## What is included
 
@@ -17,7 +17,7 @@ This module is a small Spring Boot example that shows how to combine LocalStack,
   - the SNS subscription SQS queue for `/sns-flow`
   and persists those messages to PostgreSQL with the correct `sourceType`.
 
-## AWS services used with LocalStack Free
+## AWS services used with Floci
 
 - S3
 - SSM
@@ -25,16 +25,16 @@ This module is a small Spring Boot example that shows how to combine LocalStack,
 - SNS
 - Lambda
 
-PostgreSQL runs as a standalone Docker container so the example stays free-tier friendly.
+PostgreSQL runs as a standalone Docker container so the example stays lightweight and self-contained.
 
 ## Profiles
 
 - `local`
-  - uses LocalStack endpoint overrides
+  - uses Floci endpoint overrides
   - reads `batchsize` and `useLambda` from SSM
   - enables the background consumer
 - `prod-like`
-  - removes LocalStack endpoint overrides
+  - removes Floci endpoint overrides
   - uses example AWS-style resource names
   - uses profile-local fallback values instead of SSM
   - disables the background consumer
@@ -49,20 +49,20 @@ docker compose up -d
 
 This starts:
 
-- `localstack` on `http://localhost:4566`
+- `floci` on `http://localhost:4566`
 - `postgres` on `localhost:5432`
 
-The LocalStack bootstrap script deploys the shared CloudFormation stack `localstack-demo-stack` from `localstack/cloudformation/localstack-demo.yml`, then uploads the demo payload file to S3.
+The bootstrap container deploys the shared CloudFormation stack `floci-demo-stack` from `floci/cloudformation/floci-demo.yml`, then uploads the demo payload file to S3.
 
 The stack creates:
 
-- S3 bucket `localstack-demo-bucket`
+- S3 bucket `floci-demo-bucket`
 - object `payloads/payloads.json`
-- SSM parameters `/localstack-demo/batchsize` and `/localstack-demo/useLambda`
-- SQS queue `localstack-demo-queue`
-- SNS topic `localstack-demo-topic`
-- SNS subscription queue `localstack-demo-sns-subscription-queue`
-- Lambda function `localstack-demo-enrichment`
+- SSM parameters `/floci-demo/batchsize` and `/floci-demo/useLambda`
+- SQS queue `floci-demo-queue`
+- SNS topic `floci-demo-topic`
+- SNS subscription queue `floci-demo-sns-subscription-queue`
+- Lambda function `floci-demo-enrichment`
 
 ## Run the app
 
@@ -88,13 +88,13 @@ curl -X POST http://localhost:8080/lambda-flow
 ## Useful inspection commands
 
 ```powershell
-docker exec localstack-demo awslocal cloudformation describe-stacks --stack-name localstack-demo-stack
-docker exec localstack-demo awslocal cloudformation list-stack-resources --stack-name localstack-demo-stack
-docker exec localstack-demo awslocal s3 ls s3://localstack-demo-bucket/payloads/
-docker exec localstack-demo awslocal ssm get-parameter --name /localstack-demo/batchsize
-docker exec localstack-demo awslocal sqs receive-message --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/localstack-demo-queue
-docker exec localstack-demo awslocal lambda invoke --function-name localstack-demo-enrichment response.json
-docker exec -it localstack-demo-postgres psql -U localstack -d localstack_demo -c "select id, source_type, payload from processed_payload order by id;"
+docker compose run --rm --entrypoint aws bootstrap --endpoint-url http://floci:4566 cloudformation describe-stacks --stack-name floci-demo-stack
+docker compose run --rm --entrypoint aws bootstrap --endpoint-url http://floci:4566 cloudformation list-stack-resources --stack-name floci-demo-stack
+docker compose run --rm --entrypoint aws bootstrap --endpoint-url http://floci:4566 s3 ls s3://floci-demo-bucket/payloads/
+docker compose run --rm --entrypoint aws bootstrap --endpoint-url http://floci:4566 ssm get-parameter --name /floci-demo/batchsize
+docker compose run --rm --entrypoint aws bootstrap --endpoint-url http://floci:4566 sqs receive-message --queue-url http://floci:4566/000000000000/floci-demo-queue
+docker compose run --rm --entrypoint aws bootstrap --endpoint-url http://floci:4566 lambda invoke --function-name floci-demo-enrichment response.json
+docker exec -it floci-demo-postgres psql -U floci -d floci_demo -c "select id, source_type, payload from processed_payload order by id;"
 ```
 
 ## Payload generator
@@ -111,5 +111,5 @@ docker exec -it localstack-demo-postgres psql -U localstack -d localstack_demo -
 You can regenerate a file manually with:
 
 ```powershell
-mvn -pl 1-5-localstack -DskipTests exec:java "-Dexec.mainClass=org.codeus.localstackdemo.util.PayloadFileGenerator" "-Dexec.args=localstack/bootstrap/payloads.json 10"
+mvn -pl 1-5-localstack -DskipTests exec:java "-Dexec.mainClass=org.codeus.localstackdemo.util.PayloadFileGenerator" "-Dexec.args=floci/bootstrap/payloads.json 10"
 ```
